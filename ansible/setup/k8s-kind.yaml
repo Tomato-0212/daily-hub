@@ -1,6 +1,6 @@
 ---
 - name: Install Kubernetes tools and Setup Kind Cluster
-  hosts: k8s_nodes
+  hosts: vm_app_node
   become: yes
   tasks:
     # 1. ติดตั้ง kubectl

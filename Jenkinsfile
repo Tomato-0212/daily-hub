@@ -114,7 +114,11 @@ pipeline {
                     sleep 90
 
                     echo 'Check Docker and Docker Compose installation...'
-                    sh 'ansible all -i inventory/ "docker version && docker compose version"'
+                    sh 'ansible all -i inventory/ -a "docker version"'
+                    sleep 10
+
+                    echo 'Check Kubernetes cluster status...'
+                    sh 'ansible all -i inventory/ -a "kubectl cluster-info"'
                 }
             }
         }
