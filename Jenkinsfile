@@ -47,6 +47,7 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
+                    sh 'pwd && ls -a'
                     echo 'Running Terraform Plan...'
                     // Add your Terraform plan commands here
                     echo 'Running Terraform Apply...'
@@ -58,6 +59,7 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.ANSIBLE_PATH}") {
+                    sh 'pwd && ls -a'
                     echo 'Running Ansible Playbook...'
                     // Add your Ansible playbook commands here
                 }
