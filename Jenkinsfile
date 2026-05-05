@@ -90,7 +90,7 @@ pipeline {
                 }
             }
         }
-        stage('Infra: Terraform Plan & Apply') {
+        stage('Infra: Terraform Apply') {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
