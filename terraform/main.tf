@@ -8,7 +8,7 @@ resource "digitalocean_droplet" "cloud-project" {
   monitoring = var.enable_monitoring
 
   # Use SSH keys for secure access if available, otherwise password auth
-  ssh_keys = var.ssh_key_ids != null ? var.ssh_key_ids : []
+  ssh_keys = [var.ssh_key_id]
 
   lifecycle {
     ignore_changes = [image]

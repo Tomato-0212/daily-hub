@@ -17,7 +17,7 @@ pipeline {
 
         // Terraform
         TF_VAR_do_api_token = credentials('do-api-token')
-        TF_VAR_ssh_key_ids = credentials('do-ssh-key-ids')
+        TF_VAR_ssh_key_ids = credentials('do-ssh-key-id')
         TF_VAR_project_id = credentials('do-project-id')
 
         // Path in project
@@ -63,7 +63,7 @@ pipeline {
                     sh 'ls -al'
                     sh 'rm -rf .terraform .terraform.lock.hcl'
                     sh 'terraform version'
-                    
+
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
                     sleep 10

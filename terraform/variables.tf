@@ -32,11 +32,11 @@ variable "os_image" {
   # Others: ubuntu-20-04-x64, debian-10-x64, centos-8-x64, etc.
 }
 
-variable "ssh_key_ids" {
-  description = "List of SSH key IDs to be added to the Droplet for access"
-  type        = list(string)
+variable "ssh_key_id" {
+  description = "SSH key ID to be added to the Droplet for access"
+  type        = string
   default     = null
-  # Get SSH key IDs: https://cloud.digitalocean.com/settings/security
+  # Get SSH key ID: https://cloud.digitalocean.com/settings/security
 }
 
 variable "enable_monitoring" {
