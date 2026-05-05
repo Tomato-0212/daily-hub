@@ -37,6 +37,7 @@ pipeline {
         // Ansible Path
         ANSIBLE_SETUP_PATH = 'ansible/setup/'
         ANSIBLE_DELIVERY_PATH = 'ansible/delivery/'
+        ANSIBLE_INVENTORY_PATH = 'ansible/inventory/'
 
         // IP Server
     }
