@@ -60,7 +60,10 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
-                    sh 'pwd && ls -a'
+                    sh 'ls -al'
+                    sh 'rm -rf .terraform .terraform.lock.hcl'
+                    sh 'terraform version'
+                    
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
                     sleep 10
