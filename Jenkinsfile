@@ -17,7 +17,7 @@ pipeline {
 
         // Terraform
         TF_VAR_do_api_token = credentials('do-api-token')
-        TF_VAR_ssh_key_ids = credentials('do-ssh-key-id')
+        TF_VAR_ssh_key_id = credentials('do-ssh-key-id')
         TF_VAR_project_id = credentials('do-project-id')
 
         // Path in project
