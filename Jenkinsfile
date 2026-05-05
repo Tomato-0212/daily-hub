@@ -37,7 +37,7 @@ pipeline {
         // Ansible Path
         ANSIBLE_SETUP_PATH = 'ansible/setup/'
         ANSIBLE_DELIVERY_PATH = 'ansible/delivery/'
-        ANSIBLE_INVENTORY_PATH = 'ansible/inventory/'
+        ANSIBLE_PATH = 'ansible'
 
         // IP Server
     }
@@ -93,10 +93,13 @@ pipeline {
         stage('Infra: Ansible Health Check') {
             agent { label 'infra-ops' }
             steps {
-                dir("${env.ANSIBLE_INVENTORY_PATH}") {
+                dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
                     // Add your Ansible health check commands here
-                    sh 'ansible vm_app_node -i all -m ping'
+                    sh 'ansible all -i inventory/ -a "uptime"'
+                    sleep 3
+
+                    sh 'ansible all -i inventory/ -m ping'
                 }
             }
         }
