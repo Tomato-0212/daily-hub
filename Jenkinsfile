@@ -68,41 +68,28 @@ pipeline {
             }
         }
         // ============= INFRA-OPS STAGE =============
-        stage('Tnfra: Terraform Init') {
+        stage('Infra: Terraform Init, Plan, Apply') {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
-                    sleep 10
-                }
-            }
-        }
-        stage('Infra: Terraform Plan') {
-            agent { label 'infra-ops' }
-            steps {
-                dir("${env.TERRAFORM_PATH}") {
+                    sleep 20
 
                     echo 'Running Terraform Plan...'
-                    // Add your Terraform plan commands here
                     sh 'terraform plan -out=tfplan'
-                    sleep 10
-                }
-            }
-        }
-        stage('Infra: Terraform Apply') {
-            agent { label 'infra-ops' }
-            steps {
-                dir("${env.TERRAFORM_PATH}") {
-                    echo 'Running Terraform Apply...'
+                    sleep 20
 
+                    echo 'Running Terraform Apply...'
                     sh 'terraform apply -auto-approve tfplan'
                     // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
                     echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
                     sleep 120
+                    
                 }
             }
         }
+        
         stage('Infra: Ansible Health Check') {
             agent { label 'infra-ops' }
             steps {
