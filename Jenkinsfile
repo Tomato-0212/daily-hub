@@ -48,6 +48,7 @@ pipeline {
             }
         }
         stage('Debug Variable Name') {
+            agent { label 'infra-ops' }
             steps {
                 // คำสั่งนี้จะเช็คว่ามีตัวแปรที่ชื่อขึ้นต้นด้วย TF_VAR หรือไม่ 
                 // โดยไม่แสดงค่า Secret ออกมา (เพื่อความปลอดภัย)
