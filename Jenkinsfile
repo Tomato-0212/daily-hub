@@ -47,6 +47,13 @@ pipeline {
                 }
             }
         }
+        stage('Debug Variable Name') {
+            steps {
+                // คำสั่งนี้จะเช็คว่ามีตัวแปรที่ชื่อขึ้นต้นด้วย TF_VAR หรือไม่ 
+                // โดยไม่แสดงค่า Secret ออกมา (เพื่อความปลอดภัย)
+                sh 'env | grep TF_VAR | cut -d= -f1'
+            }
+        }
         // ============= INFRA-OPS STAGE =============
         stage('Infra: Terraform Plan & Apply') {
             agent { label 'infra-ops' }
