@@ -85,8 +85,8 @@ pipeline {
                     
                     sh 'terraform apply -auto-approve tfplan'
                     // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
-                    echo "Waiting 30 seconds for Cloud-init (user setup) to finish..."
-                    sleep 30
+                    echo "Waiting 60 seconds for Cloud-init (user setup) to finish..."
+                    sleep 60
                 }
             }
         }
@@ -99,7 +99,7 @@ pipeline {
                     sh 'ansible all -i inventory/ -a "uptime"'
                     sleep 3
 
-                    sh 'ansible all -i inventory/ -m ping'
+                    //sh 'ansible all -i inventory/ -m ping'
                 }
             }
         }
