@@ -55,14 +55,16 @@ pipeline {
                     sh 'pwd && ls -a'
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
+                    sleep 10
 
                     echo 'Running Terraform Plan...'
                     // Add your Terraform plan commands here
                     sh 'terraform plan -out=tfplan'
+                    sleep 10
 
-                    echo 'Running Terraform Apply...'
+                    /*echo 'Running Terraform Apply...'
                     // Add your Terraform apply commands here
-                    sh 'terraform apply -auto-approve tfplan'
+                    sh 'terraform apply -auto-approve tfplan'*/
                 }
             }
         }
