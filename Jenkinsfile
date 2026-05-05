@@ -107,10 +107,10 @@ pipeline {
                     
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
-                    sh 'ansible-playbook -i inventory/terraform.ini docker.yaml'
+                    sh 'ansible-playbook -i inventory/terraform.ini setup/docker.yaml'
                     sleep 90
 
-                    sh 'ansible-playbook -i inventory/terraform.ini k8s-kind.yaml'
+                    sh 'ansible-playbook -i inventory/terraform.ini setup/k8s-kind.yaml'
                     sleep 90
 
                     echo 'Check Docker and Docker Compose installation...'
