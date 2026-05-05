@@ -45,8 +45,8 @@ pipeline {
         // ============= INFRA-OPS STAGE =============
         stage('Infra: Terraform Plan & Apply') {
             agent { label 'infra-ops' }
-            dir("${env.TERRAFORM_PATH}") {
-                steps {
+            steps {
+                dir("${env.TERRAFORM_PATH}") {
                     echo 'Running Terraform Plan...'
                     // Add your Terraform plan commands here
                     echo 'Running Terraform Apply...'
@@ -56,8 +56,8 @@ pipeline {
         }
         stage('Infra: Ansible Configuration') {
             agent { label 'infra-ops' }
-            dir("${env.ANSIBLE_PATH}") {
-                steps {
+            steps {
+                dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Playbook...'
                     // Add your Ansible playbook commands here
                 }
