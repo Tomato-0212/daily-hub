@@ -89,6 +89,16 @@ pipeline {
                 }
             }
         }
+        stage('Infra: Ansible Health Check') {
+            agent { label 'infra-ops' }
+            steps {
+                dir("${env.ANSIBLE_INVENTORY_PATH}") {
+                    echo 'Running Ansible Health Check...'
+                    // Add your Ansible health check commands here
+                    sh 'ansible vm_app_node -i all -m ping'
+                }
+            }
+        }
         stage('Infra: Ansible Setup') {
             agent { label 'infra-ops' }
             steps {
@@ -96,6 +106,7 @@ pipeline {
                     sh 'pwd && ls -a'
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here
+                    //sh 'ansible-playbook -i ../inventory/terraform.ini docker.yaml'
                     // sh 'ansible-playbook -i hosts.ini useradd.yaml -e "public_key_path=${env.SSH_PUBLIC_KEYPATH}"'
                 }
             }
