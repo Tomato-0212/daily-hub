@@ -1,0 +1,41 @@
+---
+- name: Install Kubernetes tools and Setup Kind Cluster
+  hosts: k8s_nodes
+  become: yes
+  tasks:
+    # 1. ติดตั้ง kubectl
+    - name: Download kubectl binary
+      get_url:
+        url: "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: "0755"
+
+    # 2. ติดตั้ง Kind
+    - name: Download Kind binary
+      get_url:
+        url: "https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64"
+        dest: /usr/local/bin/kind
+        mode: "0755"
+
+    # 3. สร้าง Cluster (ไม่ต้องใช้ become: yes เพราะเราจะรันในฐานะ user ปกติที่มีสิทธิ์ docker)
+    - name: Check if Kind cluster exists
+      become: no
+      command: kind get clusters
+      register: kind_clusters
+      changed_when: false
+
+    - name: Create Kind Cluster if not exists
+      become: no
+      command: kind create cluster --name my-cluster
+      when: "'my-cluster' not in kind_clusters.stdout"
+
+    # 4. ตรวจสอบสถานะ
+    - name: Wait for cluster to be ready
+      become: no
+      command: kubectl cluster-info
+      register: k8s_info
+      changed_when: false
+
+    - name: Print Cluster Info
+      debug:
+        msg: "{{ k8s_info.stdout }}"

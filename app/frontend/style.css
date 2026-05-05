@@ -1,0 +1,482 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+:root {
+    --bg: #fafaf9;
+    --white: #ffffff;
+    --border: #e8e6e1;
+    --border-2: #d4d1cb;
+    --t1: #18181b;
+    --t2: #52525b;
+    --t3: #a1a1aa;
+    --accent: #18181b;
+    --accent-fg: #fafaf9;
+    --high: #ef4444;
+    --high-bg: #fff1f2;
+    --high-border: #fecdd3;
+    --med: #f59e0b;
+    --med-bg: #fffbeb;
+    --med-border: #fde68a;
+    --low: #22c55e;
+    --low-bg: #f0fdf4;
+    --low-border: #bbf7d0;
+    --radius: 12px;
+    --radius-sm: 8px;
+}
+
+html {
+    font-size: 15px
+}
+
+body {
+    font-family: 'Geist', sans-serif;
+    background: var(--bg);
+    color: var(--t1);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 16px 80px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── wrapper ── */
+.wrap {
+    width: 100%;
+    max-width: 560px
+}
+
+/* ── header ── */
+.header {
+    margin-bottom: 32px
+}
+
+.header-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4px
+}
+
+.app-title {
+    font-size: 1.55rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--t1)
+}
+
+.date-label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--t3);
+    padding-bottom: 3px
+}
+
+.tagline {
+    font-size: 0.85rem;
+    color: var(--t3);
+    margin-top: 2px
+}
+
+/* ── stats strip ── */
+.stats {
+    display: flex;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.stat {
+    flex: 1;
+    background: var(--white);
+    padding: 12px 14px;
+    text-align: center;
+}
+
+.stat-n {
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1;
+}
+
+.stat-n.c-high {
+    color: var(--high)
+}
+
+.stat-n.c-low {
+    color: var(--low)
+}
+
+.stat-lbl {
+    font-size: 0.68rem;
+    color: var(--t3);
+    margin-top: 4px;
+    font-family: 'Geist Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em
+}
+
+/* progress */
+.progress {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 20px;
+    overflow: hidden
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--t1);
+    border-radius: 2px;
+    transition: width .4s cubic-bezier(.4, 0, .2, 1)
+}
+
+/* ── add card ── */
+.add-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .04);
+}
+
+.input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px
+}
+
+.task-input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    font-family: 'Geist', sans-serif;
+    color: var(--t1);
+    background: var(--bg);
+    outline: none;
+    transition: border-color .15s;
+}
+
+.task-input:focus {
+    border-color: var(--t1);
+    background: var(--white)
+}
+
+.task-input::placeholder {
+    color: var(--t3)
+}
+
+.add-btn {
+    padding: 10px 18px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-size: 0.88rem;
+    font-weight: 500;
+    font-family: 'Geist', sans-serif;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity .15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.add-btn:hover {
+    opacity: .85
+}
+
+.add-btn:active {
+    opacity: .7
+}
+
+/* priority pills */
+.priority-row {
+    display: flex;
+    gap: 6px
+}
+
+.p-pill {
+    flex: 1;
+    padding: 7px 0;
+    border-radius: var(--radius-sm);
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: 'Geist', sans-serif;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--t2);
+    transition: all .15s;
+    text-align: center;
+}
+
+.p-pill:hover {
+    border-color: var(--border-2);
+    color: var(--t1)
+}
+
+.p-pill.sel-high {
+    background: var(--high-bg);
+    border-color: var(--high);
+    color: var(--high);
+    font-weight: 600
+}
+
+.p-pill.sel-med {
+    background: var(--med-bg);
+    border-color: var(--med);
+    color: #b45309;
+    font-weight: 600
+}
+
+.p-pill.sel-low {
+    background: var(--low-bg);
+    border-color: var(--low);
+    color: #16a34a;
+    font-weight: 600
+}
+
+/* ── filter bar ── */
+.filter-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px
+}
+
+.f-btn {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    font-family: 'Geist', sans-serif;
+    border: 1px solid transparent;
+    background: none;
+    color: var(--t3);
+    cursor: pointer;
+    transition: all .15s;
+}
+
+.f-btn:hover {
+    color: var(--t2);
+    background: var(--white)
+}
+
+.f-btn.active {
+    background: var(--t1);
+    color: var(--white);
+    border-color: var(--t1)
+}
+
+/* ── task list ── */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px
+}
+
+.task {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: opacity .2s, transform .2s;
+    animation: slideIn .2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.task::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+}
+
+.task.high::before {
+    background: var(--high)
+}
+
+.task.med::before {
+    background: var(--med)
+}
+
+.task.low::before {
+    background: var(--low)
+}
+
+.task.done {
+    opacity: .45
+}
+
+.task.done .task-text {
+    text-decoration: line-through;
+    color: var(--t3)
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+/* checkbox */
+.cb {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 1.5px solid var(--border-2);
+    background: var(--bg);
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+}
+
+.cb:hover {
+    border-color: var(--t2)
+}
+
+.task.high .cb:hover {
+    border-color: var(--high)
+}
+
+.task.med .cb:hover {
+    border-color: var(--med)
+}
+
+.task.low .cb:hover {
+    border-color: var(--low)
+}
+
+.cb.checked {
+    border-color: var(--t1);
+    background: var(--t1)
+}
+
+.cb.checked svg {
+    display: block
+}
+
+.cb svg {
+    display: none;
+    width: 11px;
+    height: 11px;
+    stroke: white;
+    stroke-width: 2.5;
+    fill: none
+}
+
+.task-body {
+    flex: 1;
+    min-width: 0
+}
+
+.task-text {
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--t1)
+}
+
+.task-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px
+}
+
+.badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    font-family: 'Geist Mono', monospace;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badge.high {
+    background: var(--high-bg);
+    color: var(--high);
+    border: 1px solid var(--high-border)
+}
+
+.badge.med {
+    background: var(--med-bg);
+    color: #b45309;
+    border: 1px solid var(--med-border)
+}
+
+.badge.low {
+    background: var(--low-bg);
+    color: #16a34a;
+    border: 1px solid var(--low-border)
+}
+
+.task-time {
+    font-size: 0.68rem;
+    color: var(--t3);
+    font-family: 'Geist Mono', monospace
+}
+
+.del-btn {
+    opacity: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--t3);
+    padding: 4px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    transition: all .15s;
+}
+
+.task:hover .del-btn {
+    opacity: 1
+}
+
+.del-btn:hover {
+    color: #ef4444;
+    background: var(--high-bg)
+}
+
+/* empty */
+.empty {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--t3);
+    font-size: 0.88rem;
+}
+
+.empty-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    opacity: .5
+}

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Hub</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <div class="wrap">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="app-title">Daily Hub</div>
+                <div class="date-label" id="date-label"></div>
+            </div>
+            <div class="tagline">Track your tasks for today.</div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-n" id="s-total">0</div>
+                <div class="stat-lbl">Total</div>
+            </div>
+            <div class="stat">
+                <div class="stat-n c-low" id="s-done">0</div>
+                <div class="stat-lbl">Done</div>
+            </div>
+            <div class="stat">
+                <div class="stat-n" id="s-left" style="color: var(--t2)">0</div>
+                <div class="stat-lbl">Left</div>
+            </div>
+            <div class="stat">
+                <div class="stat-n c-high" id="s-high">0</div>
+                <div class="stat-lbl">High</div>
+            </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress">
+            <div class="progress-fill" id="prog" style="width: 0%"></div>
+        </div>
+
+        <!-- Add Card -->
+        <div class="add-card">
+            <div class="input-row">
+                <input class="task-input" id="inp" type="text" placeholder="Add a new task…"
+                    onkeydown="if (event.key === 'Enter') addTask();" autocomplete="off" />
+                <button class="add-btn" onclick="addTask()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5"
+                        viewBox="0 0 24 24">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Add
+                </button>
+            </div>
+            <div class="priority-row" id="pills">
+                <button class="p-pill" data-p="low" onclick="selP('low')">
+                    ● Low
+                </button>
+                <button class="p-pill sel-med" data-p="med" onclick="selP('med')">
+                    ● Med
+                </button>
+                <button class="p-pill" data-p="high" onclick="selP('high')">
+                    ● High
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="filter-bar">
+            <button class="f-btn active" onclick="setF('all', this)">All</button>
+            <button class="f-btn" onclick="setF('todo', this)">To-do</button>
+            <button class="f-btn" onclick="setF('done', this)">Done</button>
+            <button class="f-btn" onclick="setF('high', this)">High</button>
+        </div>
+
+        <!-- List -->
+        <div class="list" id="list"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,28 @@
+- name: Cleanup Kubernetes and Kind
+  hosts: k8s_nodes
+  become: yes
+  tasks:
+    # 1. ลบ Kind Cluster (ต้องทำก่อนลบ binary)
+    - name: Delete Kind Cluster
+      become: no
+      command: kind delete cluster --name my-cluster
+      ignore_errors: yes # ถ้าไม่มี cluster อยู่แล้วก็ให้ข้ามไป
+
+    # 2. ลบ Kind Binary
+    - name: Remove Kind binary
+      file:
+        path: /usr/local/bin/kind
+        state: absent
+
+    # 3. ลบ kubectl Binary
+    - name: Remove kubectl binary
+      file:
+        path: /usr/local/bin/kubectl
+        state: absent
+
+    # 4. ลบ config ของ kube (ในโฟลเดอร์ user)
+    - name: Remove .kube directory
+      become: no
+      file:
+        path: "~/.kube"
+        state: absent
