@@ -15,6 +15,11 @@ pipeline {
         // Github
         GITHUB_REPO = 'daily-hub'
 
+        // Terraform
+        TF_VAR_do_api_token = credentials('do-api-token')
+        TF_VAR_ssh_key_ids = credentials('do-ssh-key-ids')
+        TF_VAR_project_id = credentials('do-project-id')
+
         // Path in project
         // Application Path
         FRONTEND_PATH = 'app/frontend/'
@@ -48,10 +53,16 @@ pipeline {
             steps {
                 dir("${env.TERRAFORM_PATH}") {
                     sh 'pwd && ls -a'
+                    echo 'Initializing Terraform...'
+                    sh 'terraform init'
+
                     echo 'Running Terraform Plan...'
                     // Add your Terraform plan commands here
+                    sh 'terraform plan -out=tfplan'
+
                     echo 'Running Terraform Apply...'
                     // Add your Terraform apply commands here
+                    sh 'terraform apply -auto-approve tfplan'
                 }
             }
         }
