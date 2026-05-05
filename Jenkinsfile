@@ -35,8 +35,6 @@ pipeline {
         TERRAFORM_PATH = 'terraform/'
 
         // Ansible Path
-        ANSIBLE_SETUP_PATH = 'ansible/setup/'
-        ANSIBLE_DELIVERY_PATH = 'ansible/delivery/'
         ANSIBLE_PATH = 'ansible'
 
         // IP Server
@@ -85,7 +83,6 @@ pipeline {
                     // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
                     echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
                     sleep 120
-                    
                 }
             }
         }
@@ -97,21 +94,27 @@ pipeline {
                     echo 'Running Ansible Health Check...'
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/ -a "uptime"'
-                    sleep 3
+                    sleep 10
 
-                    //sh 'ansible all -i inventory/ -m ping'
+                    sh 'ansible all -i inventory/ -m ping'
                 }
             }
         }
         stage('Infra: Ansible Setup') {
             agent { label 'infra-ops' }
             steps {
-                dir("${env.ANSIBLE_SETUP_PATH}") {
-                    sh 'pwd && ls -a'
+                dir("${env.ANSIBLE_PATH}") {
+                    
                     echo 'Running Ansible Setup...'
-                    // Add your Ansible playbook commands here
-                    //sh 'ansible-playbook -i ../inventory/terraform.ini docker.yaml'
-                    // sh 'ansible-playbook -i hosts.ini useradd.yaml -e "public_key_path=${env.SSH_PUBLIC_KEYPATH}"'
+                    // Add your Ansible playbook commands here\
+                    sh 'ansible-playbook -i inventory/terraform.ini docker.yaml'
+                    sleep 90
+
+                    sh 'ansible-playbook -i inventory/terraform.ini k8s-kind.yaml'
+                    sleep 90
+
+                    echo 'Check Docker and Docker Compose installation...'
+                    sh 'ansible all -i inventory/ "docker version && docker compose version"'
                 }
             }
         }
@@ -119,7 +122,7 @@ pipeline {
         stage('Infra: Ansible Configuration') {
             agent { label 'infra-ops' }
             steps {
-                dir("${env.ANSIBLE_DELIVERY_PATH}") {
+                dir("${env.ANSIBLE_PATH}") {
                     sh 'pwd && ls -a'
                     echo 'Running Ansible Configuration...'
                     // Add your Ansible playbook commands here
