@@ -17,15 +17,26 @@ pipeline {
 
         // Terraform
         TF_VAR_do_api_token = credentials('do-api-token')
-        TF_VAR_ssh_key_id = credentials('do-ssh-key-id')
         TF_VAR_project_id = credentials('do-project-id')
+        TF_VAR_admin_username = credentials('do-admin-username')
+
+        // SSH Key for Terraform
+        TF_VAR_ssh_key_id = credentials('do-ssh-key-id') // SSH_PUBLIC_KEYPATH
+        TF_VAR_pvt_key_path = credentials('do-pvt-key-path') // SSH_PRIVATE_KEYPATH
 
         // Path in project
+        // SSH Key Path
+        SSH_PUBLIC_KEYPATH = '~/jenkins-agent/.ssh/cloud-project/do_vm_app.pub'
+        SSH_PRIVATE_KEYPATH = '~/jenkins-agent/.ssh/cloud-project/do_vm_app'
+
         // Application Path
         FRONTEND_PATH = 'app/frontend/'
         BACKEND_PATH = 'app/backend/'
         TERRAFORM_PATH = 'terraform/'
-        ANSIBLE_PATH = 'ansible/setup/'
+
+        // Ansible Path
+        ANSIBLE_SETUP_PATH = 'ansible/setup/'
+        ANSIBLE_DELIVERY_PATH = 'ansible/delivery/'
 
         // IP Server
     }
@@ -60,10 +71,6 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
-                    sh 'ls -al'
-                    sh 'rm -rf .terraform .terraform.lock.hcl'
-                    sh 'terraform version'
-
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
                     sleep 10
@@ -74,18 +81,32 @@ pipeline {
                     sleep 10
 
                     echo 'Running Terraform Apply...'
-                    // Add your Terraform apply commands here
+                    
                     sh 'terraform apply -auto-approve tfplan'
-                    sh 'ls -al'
+                    // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
+                    echo "Waiting 30 seconds for Cloud-init (user setup) to finish..."
+                    sleep 30
                 }
             }
         }
+        stage('Infra: Ansible Setup') {
+            agent { label 'infra-ops' }
+            steps {
+                dir("${env.ANSIBLE_SETUP_PATH}") {
+                    sh 'pwd && ls -a'
+                    echo 'Running Ansible Setup...'
+                    // Add your Ansible playbook commands here
+                    // sh 'ansible-playbook -i hosts.ini useradd.yaml -e "public_key_path=${env.SSH_PUBLIC_KEYPATH}"'
+                }
+            }
+        }
+
         stage('Infra: Ansible Configuration') {
             agent { label 'infra-ops' }
             steps {
-                dir("${env.ANSIBLE_PATH}") {
+                dir("${env.ANSIBLE_DELIVERY_PATH}") {
                     sh 'pwd && ls -a'
-                    echo 'Running Ansible Playbook...'
+                    echo 'Running Ansible Configuration...'
                     // Add your Ansible playbook commands here
                 }
             }

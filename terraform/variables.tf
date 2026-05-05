@@ -50,3 +50,15 @@ variable "project_id" {
   type        = string
   # Get your project ID from: https://cloud.digitalocean.com/projects
 }
+
+variable "pvt_key_path" {
+  description = "Path to the private SSH key for Ansible access"
+  type        = string
+  default     = "~/.ssh/id_rsa"
+}
+
+variable "admin_username" {
+    description = "Username to be created and used by Ansible"
+    type        = string
+    default     = "worawut"
+}
