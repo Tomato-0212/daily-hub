@@ -73,9 +73,10 @@ pipeline {
                     sh 'terraform plan -out=tfplan'
                     sleep 10
 
-                    /*echo 'Running Terraform Apply...'
+                    echo 'Running Terraform Apply...'
                     // Add your Terraform apply commands here
-                    sh 'terraform apply -auto-approve tfplan'*/
+                    sh 'terraform apply -auto-approve tfplan'
+                    sh 'ls -al'
                 }
             }
         }
