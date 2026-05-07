@@ -92,6 +92,7 @@ pipeline {
             steps {
                 dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
+                    sleep 30
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/ -a "uptime"'
                     sleep 10
