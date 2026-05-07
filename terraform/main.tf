@@ -30,7 +30,7 @@ resource "digitalocean_droplet" "cloud-project" {
   EOF
 
   lifecycle {
-    ignore_changes = [image, name, region, size]
+    ignore_changes = [image, name, region, size, user_data]
   }
 }
 
