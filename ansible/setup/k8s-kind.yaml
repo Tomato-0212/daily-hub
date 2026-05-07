@@ -4,6 +4,7 @@
   tasks:
     # 1. ติดตั้ง kubectl
     - name: Download kubectl binary
+      become: yes
       get_url:
         url: "https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl"
         dest: /usr/local/bin/kubectl
@@ -17,9 +18,15 @@
         dest: /usr/local/bin/kind
         mode: "0755"
 
-    # 3. สร้าง Cluster (ไม่ต้องใช้ become: yes เพราะเราจะรันในฐานะ user ปกติที่มีสิทธิ์ docker)
+    # --- เพิ่มเติม: สร้างโฟลเดอร์ .kube รอไว้ ---
+    - name: Ensure .kube directory exists
+      file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: directory
+        mode: "0755"
+
+    # 3. สร้าง Cluster
     - name: Check if Kind cluster exists
-      become: no
       command: kind get clusters
       register: kind_clusters
       changed_when: false
@@ -39,12 +46,14 @@
         group: "{{ ansible_user }}"
         mode: "0600"
 
-    # 4. ตรวจสอบสถานะ
+    # 4. ตรวจสอบสถานะ (เพิ่มหน่วงเวลารอ API Server)
     - name: Wait for cluster to be ready
-      become: no
       command: kubectl cluster-info
       register: k8s_info
       changed_when: false
+      retries: 5 # <--- ลองเช็คซ้ำ 5 รอบ
+      delay: 10 # <--- เว้นระยะรอบละ 10 วินาที
+      until: k8s_info is succeeded
 
     - name: Print Cluster Info
       debug:

@@ -76,13 +76,13 @@ pipeline {
 
                     echo 'Running Terraform Plan...'
                     sh 'terraform plan -out=tfplan'
-                    sleep 20
+                    sleep 10
 
                     echo 'Running Terraform Apply...'
                     sh 'terraform apply -auto-approve tfplan'
                     // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
-                    echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
-                    sleep 120
+                    // echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
+                    sleep 10
                 }
             }
         }
@@ -110,14 +110,10 @@ pipeline {
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
                     sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
-                    sleep 90
+                    sleep 30
 
                     sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    sleep 90
-
-                    echo 'Check Docker and Docker Compose installation...'
-                    sh 'ansible all -i inventory/static.ini -a "docker version"'
-                    sleep 10
+                    sleep 30
 
                     echo 'Check Kubernetes cluster status...'
                     //sh 'ansible all -i inventory/static.ini -a "kubectl cluster-info"'
