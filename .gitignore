@@ -50,3 +50,4 @@ terraform/terraform.rc
 # terraform/planout
 
 terraform.tfstate
+terraform/tplan
