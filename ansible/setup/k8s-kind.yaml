@@ -1,7 +1,6 @@
 ---
 - name: Install Kubernetes tools and Setup Kind Cluster
   hosts: vm_app_node
-  become: yes
   tasks:
     # 1. ติดตั้ง kubectl
     - name: Download kubectl binary
@@ -12,6 +11,7 @@
 
     # 2. ติดตั้ง Kind
     - name: Download Kind binary
+      become: yes
       get_url:
         url: "https://kind.sigs.k8s.io/dl/v0.23.0/kind-linux-amd64"
         dest: /usr/local/bin/kind
@@ -25,9 +25,19 @@
       changed_when: false
 
     - name: Create Kind Cluster if not exists
-      become: no
-      command: kind create cluster --name my-cluster
+      command: >
+        kind create cluster
+        --name my-cluster
+        --kubeconfig /home/{{ ansible_user }}/.kube/config
       when: "'my-cluster' not in kind_clusters.stdout"
+
+    - name: Ensure correct ownership of kubeconfig
+      become: yes
+      file:
+        path: "/home/{{ ansible_user }}/.kube/config"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: "0600"
 
     # 4. ตรวจสอบสถานะ
     - name: Wait for cluster to be ready
