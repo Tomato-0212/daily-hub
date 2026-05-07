@@ -49,4 +49,5 @@ terraform/terraform.rc
 # Uncomment the line below if you want to ignore planout files.
 # terraform/planout
 
-
+terraform.tfstate
+ansible/inventory/static.ini

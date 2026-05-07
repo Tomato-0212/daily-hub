@@ -95,10 +95,10 @@ pipeline {
                     sh 'cat inventory/terraform.ini'
                     sleep 30
                     // Add your Ansible health check commands here
-                    sh 'ansible all -i inventory/ -a "uptime"'
+                    sh 'ansible all -i inventory/terraform.ini -a "uptime"'
                     sleep 10
 
-                    sh 'ansible all -i inventory/ -m ping'
+                    sh 'ansible all -i inventory/terraform.ini -m ping'
                 }
             }
         }
@@ -116,11 +116,11 @@ pipeline {
                     sleep 90
 
                     echo 'Check Docker and Docker Compose installation...'
-                    sh 'ansible all -i inventory/ -a "docker version"'
+                    sh 'ansible all -i inventory/terraform.ini -a "docker version"'
                     sleep 10
 
                     echo 'Check Kubernetes cluster status...'
-                    //sh 'ansible all -i inventory/ -a "kubectl cluster-info"'
+                    //sh 'ansible all -i inventory/terraform.ini -a "kubectl cluster-info"'
                 }
             }
         }
