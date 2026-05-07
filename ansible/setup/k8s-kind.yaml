@@ -26,6 +26,11 @@
         mode: "0755"
 
     # 3. สร้าง Cluster
+    - name: Copy Kind Config
+      template:
+        src: kind-config.yaml
+        dest: /home/{{ ansible_user }}/kind-config.yaml
+
     - name: Check if Kind cluster exists
       command: kind get clusters
       register: kind_clusters
@@ -35,7 +40,7 @@
       command: >
         kind create cluster
         --name my-cluster
-        --kubeconfig /home/{{ ansible_user }}/.kube/config
+        --config /home/{{ ansible_user }}/kind-config.yaml
       when: "'my-cluster' not in kind_clusters.stdout"
 
     - name: Ensure correct ownership of kubeconfig
