@@ -45,7 +45,7 @@ pipeline {
         stage('Checkout') {
             agent { label 'wsl-node' }
             steps {
-                //cleanWs()
+                cleanWs()
                 withCredentials([usernamePassword(credentialsId: 'github-token',
                     usernameVariable: 'GITHUB_USERNAME', 
                     passwordVariable: 'GITHUB_PASSWORD'
