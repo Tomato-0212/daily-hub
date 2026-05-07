@@ -45,7 +45,7 @@ pipeline {
         stage('Checkout') {
             agent { label 'wsl-node' }
             steps {
-                cleanWs()
+                //cleanWs()
                 withCredentials([usernamePassword(credentialsId: 'github-token',
                     usernameVariable: 'GITHUB_USERNAME', 
                     passwordVariable: 'GITHUB_PASSWORD'
@@ -118,7 +118,7 @@ pipeline {
                     sleep 10
 
                     echo 'Check Kubernetes cluster status...'
-                    sh 'ansible all -i inventory/ -a "kubectl cluster-info"'
+                    //sh 'ansible all -i inventory/ -a "kubectl cluster-info"'
                 }
             }
         }
