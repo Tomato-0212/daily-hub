@@ -93,7 +93,7 @@ pipeline {
                 dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
                     sh 'cat inventory/static.ini'
-                    sleep 30
+                    sleep 10
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/static.ini -a "uptime"'
                     sleep 10

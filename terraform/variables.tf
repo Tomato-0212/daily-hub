@@ -14,7 +14,7 @@ variable "vm_name" {
 variable "droplet_size" {
   description = "Size of the DigitalOcean Droplet (e.g., s-1vcpu-1gb)"
   type        = string
-  default     = "s-1vcpu-512mb-10gb"
+  default     = "s-2vcpu-4gb"
   # Others: s-1vcpu-1gb, s-1vcpu-2gb, s-2vcpu-2gb, s-2vcpu-4gb, etc.
 }
 
