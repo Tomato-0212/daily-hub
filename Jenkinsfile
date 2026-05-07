@@ -72,7 +72,7 @@ pipeline {
                 dir("${env.TERRAFORM_PATH}") {
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
-                    sleep 20
+                    sleep 10
 
                     echo 'Running Terraform Plan...'
                     sh 'terraform plan -out=tfplan'

@@ -44,6 +44,9 @@
         name: "{{ ansible_user }}"
         groups: docker
         append: yes
+    
+    - name: 6.1 Reset SSH connection to apply docker group
+      meta: reset_connection
 
     - name: 7. Verify Docker Compose installation
       command: docker compose version
