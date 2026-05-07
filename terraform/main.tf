@@ -43,7 +43,7 @@ resource "digitalocean_project_resources" "droplet" {
 }
 
 # สร้างไฟล์ inventory สำหรับ Ansible โดยใช้ข้อมูลจาก Droplet ที่สร้างขึ้น
-resource "local_file" "ansible_inventory" {
+/*resource "local_file" "ansible_inventory" {
   content = <<EOT
 [vm_app_node]
 %{for index, ip in digitalocean_droplet.cloud-project[*].ipv4_address~}
@@ -52,4 +52,4 @@ app_server_${index + 1} ansible_host=${ip} ansible_ssh_private_key_file="${var.p
 EOT
 
   filename = "${path.module}/../ansible/inventory/terraform.ini"
-}
+}*/

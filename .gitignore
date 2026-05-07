@@ -50,4 +50,3 @@ terraform/terraform.rc
 # terraform/planout
 
 terraform.tfstate
-ansible/inventory/static.ini

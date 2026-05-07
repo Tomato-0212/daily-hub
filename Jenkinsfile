@@ -92,13 +92,13 @@ pipeline {
             steps {
                 dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
-                    sh 'cat inventory/terraform.ini'
+                    sh 'cat inventory/static.ini'
                     sleep 30
                     // Add your Ansible health check commands here
-                    sh 'ansible all -i inventory/terraform.ini -a "uptime"'
+                    sh 'ansible all -i inventory/static.ini -a "uptime"'
                     sleep 10
 
-                    sh 'ansible all -i inventory/terraform.ini -m ping'
+                    sh 'ansible all -i inventory/static.ini -m ping'
                 }
             }
         }
@@ -109,18 +109,18 @@ pipeline {
                     
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
-                    sh 'ansible-playbook -i inventory/terraform.ini setup/docker.yaml'
+                    sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
                     sleep 90
 
-                    sh 'ansible-playbook -i inventory/terraform.ini setup/k8s-kind.yaml'
+                    sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
                     sleep 90
 
                     echo 'Check Docker and Docker Compose installation...'
-                    sh 'ansible all -i inventory/terraform.ini -a "docker version"'
+                    sh 'ansible all -i inventory/static.ini -a "docker version"'
                     sleep 10
 
                     echo 'Check Kubernetes cluster status...'
-                    //sh 'ansible all -i inventory/terraform.ini -a "kubectl cluster-info"'
+                    //sh 'ansible all -i inventory/static.ini -a "kubectl cluster-info"'
                 }
             }
         }
