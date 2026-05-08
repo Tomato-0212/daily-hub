@@ -164,7 +164,7 @@ pipeline {
         stage('Push to Docker Hub') {
             agent { label 'wsl-node' }
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-jenkins-token',
+                withCredentials([usernamePassword(credentialsId: 'docker-token',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
