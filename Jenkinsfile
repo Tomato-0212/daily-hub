@@ -186,17 +186,17 @@ pipeline {
                     // Change Tag
                     echo 'Changing Docker Image Tags...'
                     // Frontend
-                    sh 'docker tag $FE_IMAGE $DOCKER_USER/DOCKER_REPO:$FE_IMAGE'
+                    sh 'docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE'
                     // Backend
-                    sh 'docker tag $BE_IMAGE $DOCKER_USER/DOCKER_REPO:$BE_IMAGE'
-                    
+                    sh 'docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE'
+
                     // Push to Docker Hub
                     echo 'Pushing Frontend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/DOCKER_REPO:$FE_IMAGE'
+                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE'
                     sleep 5
 
                     echo 'Pushing Backend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/DOCKER_REPO:$BE_IMAGE'
+                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE'
                     sleep 5
                 }
             }
@@ -208,8 +208,8 @@ pipeline {
                 sh 'docker rmi $FE_IMAGE || true'
                 sh 'docker rmi $BE_IMAGE || true'
 
-                sh 'docker rmi $DOCKER_USER/DOCKER_REPO:$FE_IMAGE || true'
-                sh 'docker rmi $DOCKER_USER/DOCKER_REPO:$BE_IMAGE || true'
+                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE || true'
+                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE || true'
 
                 sh 'docker images | grep $FE_IMAGE || echo "No local image for $FE_IMAGE"'
                 sh 'docker images | grep $BE_IMAGE || echo "No local image for $BE_IMAGE"'
