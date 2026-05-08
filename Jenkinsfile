@@ -203,6 +203,7 @@ pipeline {
         }
         
         stage('Cleanup') {
+            agent { label 'wsl-node' }
             steps {
                 echo 'Cleaning up local Docker images...'
                 sh 'docker rmi $FE_IMAGE || true'
