@@ -17,10 +17,14 @@
     - name: Apply Frontend
       command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/frontend/
     
+    - name: Apply Database
+      command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/database/
+    
     - name: Wait for Deployments to be ready
       command: kubectl rollout status deployment/{{ item }} -n myapp
       loop:
-        - daily-hub-backend-deployment
-        - daily-hub-frontend-deployment
+        - backend-deployment
+        - frontend-deployment
+        - database-deployment
       retries: 5
       delay: 10

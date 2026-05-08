@@ -1,6 +1,7 @@
 app/backend/node_modules/
 
-.env
+.env.local
+.env.prod
 
 # Terraform
 # Local .terraform directories
