@@ -1,0 +1,26 @@
+---
+- name: Deploy Application to Kubernetes
+  hosts: all
+  tasks:
+    - name: Copy k8s manifests to remote
+      copy:
+        src: "../../k8s/"
+        dest: /home/{{ ansible_user }}/k8s/
+        mode: "0644"
+    
+    - name: Apply Namespace
+      command: kubectl apply -f /home/{{ ansible_user }}/k8s/namespace.yaml
+
+    - name: Apply Backend
+      command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/backend/
+
+    - name: Apply Frontend
+      command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/frontend/
+    
+    - name: Wait for Deployments to be ready
+      command: kubectl rollout status deployment/{{ item }} -n myapp
+      loop:
+        - daily-hub-backend-deployment
+        - daily-hub-frontend-deployment
+      retries: 5
+      delay: 10

@@ -122,17 +122,6 @@ pipeline {
             }
         }
 
-        stage('Infra: Ansible Configuration') {
-            agent { label 'infra-ops' }
-            steps {
-                dir("${env.ANSIBLE_PATH}") {
-                    sh 'pwd && ls -a'
-                    echo 'Running Ansible Configuration...'
-                    // Add your Ansible playbook commands here
-                }
-            }
-        }
-
         // ============= BUILD STAGE PARALLEL =============
         stage('Build Parallel') {
             parallel {
@@ -201,7 +190,21 @@ pipeline {
                 }
             }
         }
-        
+
+        // ============ DEPLOY TO K8S STAGE =============
+        stage('Infra: Ansible Delivery - k8s') {
+            agent { label 'infra-ops' }
+            steps {
+                dir("${env.ANSIBLE_PATH}") {
+                    sh 'pwd && ls -a'
+                    echo 'Running Ansible Delivery...'
+                    // Add your Ansible playbook commands here
+                    sh 'ansible-playbook -i inventory/static.ini delivery/k8s-deploy.yaml'
+                }
+            }
+        }
+
+        // ============= CLEANUP STAGE =============
         stage('Cleanup') {
             agent { label 'wsl-node' }
             steps {

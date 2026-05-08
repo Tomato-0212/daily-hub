@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: daily-hub-backend-deployment
+  namespace: myapp
+  labels:
+    app: daily-hub-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: daily-hub-backend
+  template:
+    metadata:
+      labels:
+        app: daily-hub-backend
+    spec:
+      containers:
+      - name: daily-hub-backend-container
+        image: worawut2547/cloud-project:daily-hub-be
+        ports:
+        - containerPort: 3003
