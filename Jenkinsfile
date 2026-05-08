@@ -154,9 +154,9 @@ pipeline {
                     // Change Tag
                     echo 'Changing Docker Image Tags...'
                     // Frontend
-                    sh "docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG"
+                    sh "docker tag $FE_IMAGE:$IMAGE_TAG $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG"
                     // Backend
-                    sh "docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG"
+                    sh "docker tag $BE_IMAGE:$IMAGE_TAG $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG"
 
                     // Push to Docker Hub
                     echo 'Pushing Frontend Image to Docker Hub...'
