@@ -8,6 +8,8 @@ pipeline {
 
         FE_IMAGE = 'daily-hub-fe'
         BE_IMAGE = 'daily-hub-be'
+
+        IMAGE_TAG = 'v${env.BUILD_NUMBER}'
         
 
         FE_CONTAINER = 'daily-hub-fe-container'
@@ -58,14 +60,7 @@ pipeline {
                 }
             }
         }
-        stage('Debug Variable Name') {
-            agent { label 'infra-ops' }
-            steps {
-                // คำสั่งนี้จะเช็คว่ามีตัวแปรที่ชื่อขึ้นต้นด้วย TF_VAR หรือไม่ 
-                // โดยไม่แสดงค่า Secret ออกมา (เพื่อความปลอดภัย)
-                sh 'env | grep TF_VAR | cut -d= -f1'
-            }
-        }
+
         // ============= INFRA-OPS STAGE =============
         stage('Infra: Terraform Init, Plan, Apply') {
             agent { label 'infra-ops' }
@@ -81,8 +76,6 @@ pipeline {
 
                     echo 'Running Terraform Apply...'
                     sh 'terraform apply -auto-approve tfplan'
-                    // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
-                    // echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
                     sleep 5
                 }
             }
@@ -98,11 +91,10 @@ pipeline {
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/static.ini -a "uptime"'
                     sleep 5
-
-                    sh 'ansible all -i inventory/static.ini -m ping'
                 }
             }
         }
+
         stage('Infra: Ansible Setup') {
             agent { label 'infra-ops' }
             steps {
@@ -115,9 +107,6 @@ pipeline {
 
                     sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
                     sleep 10
-
-                    echo 'Check Kubernetes cluster status...'
-                    //sh 'ansible all -i inventory/static.ini -a "kubectl cluster-info"'
                 }
             }
         }
@@ -132,13 +121,9 @@ pipeline {
                         echo 'Building Frontend...'
                         // Add your build commands for the frontend here
                         dir("${env.FRONTEND_PATH}") {
-                            sh 'pwd && ls -a'
-                            sh 'docker build -t $FE_IMAGE:latest .'
+                            sh 'docker build -t $FE_IMAGE:$IMAGE_TAG .'
                             sleep 5
                         }
-
-                        // Test Docker Image
-                        sh 'docker images | grep $FE_IMAGE'
                     }
                 }
                 stage('Build Backend') {
@@ -148,13 +133,9 @@ pipeline {
                         echo 'Building Backend...'
                         // Add your build commands for the backend here
                         dir("${env.BACKEND_PATH}") {
-                            sh 'pwd && ls -a'
-                            sh 'docker build -t $BE_IMAGE:latest .'
+                            sh 'docker build -t $BE_IMAGE:$IMAGE_TAG .'
                             sleep 5
                         }
-
-                        // Test Docker Image
-                        sh 'docker images | grep $BE_IMAGE'
                     }
                 }
             }
@@ -175,17 +156,17 @@ pipeline {
                     // Change Tag
                     echo 'Changing Docker Image Tags...'
                     // Frontend
-                    sh 'docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE'
+                    sh 'docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG'
                     // Backend
-                    sh 'docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE'
+                    sh 'docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG'
 
                     // Push to Docker Hub
                     echo 'Pushing Frontend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE'
+                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG'
                     sleep 5
 
                     echo 'Pushing Backend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE'
+                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG'
                     sleep 5
                 }
             }
@@ -199,7 +180,11 @@ pipeline {
                     sh 'pwd && ls -a'
                     echo 'Running Ansible Delivery...'
                     // Add your Ansible playbook commands here
-                    sh 'ansible-playbook -i inventory/static.ini delivery/k8s-deploy.yaml'
+                    sh '''
+                        'ansible-playbook -i inventory/static.ini \
+                        delivery/k8s-deploy.yaml \
+                        -e "image_tag=$IMAGE_TAG"'
+                    '''
                 }
             }
         }
@@ -209,14 +194,12 @@ pipeline {
             agent { label 'wsl-node' }
             steps {
                 echo 'Cleaning up local Docker images...'
-                sh 'docker rmi $FE_IMAGE || true'
-                sh 'docker rmi $BE_IMAGE || true'
 
-                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE || true'
-                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE || true'
+                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG || true'
+                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG || true'
 
-                sh 'docker images | grep $FE_IMAGE || echo "No local image for $FE_IMAGE"'
-                sh 'docker images | grep $BE_IMAGE || echo "No local image for $BE_IMAGE"'
+                sh 'docker images | grep $FE_IMAGE-$IMAGE_TAG || echo "No local image for $FE_IMAGE-$IMAGE_TAG"'
+                sh 'docker images | grep $BE_IMAGE-$IMAGE_TAG || echo "No local image for $BE_IMAGE-$IMAGE_TAG"'
 
                 sh 'docker logout'
             }

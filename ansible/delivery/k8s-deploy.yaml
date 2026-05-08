@@ -11,6 +11,18 @@
     - name: Apply Namespace
       command: kubectl apply -f /home/{{ ansible_user }}/k8s/namespace.yaml
 
+    - name: Update Backend Image Tags in Manifests
+      replace:
+        path: "/home/{{ ansible_user }}/k8s/backend/deploy.yaml"
+        regexp: 'image: worawut2547/cloud-project:daily-hub-be-.*'
+        replace: 'image: worawut2547/cloud-project:daily-hub-be-{{ image_tag }}'
+    
+    - name: Update Frontend Image Tags in Manifests
+      replace:
+        path: "/home/{{ ansible_user }}/k8s/frontend/deploy.yaml"
+        regexp: 'image: worawut2547/cloud-project:daily-hub-fe-.*'
+        replace: 'image: worawut2547/cloud-project:daily-hub-fe-{{ image_tag }}'
+
     - name: Apply Database
       command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/database/
 

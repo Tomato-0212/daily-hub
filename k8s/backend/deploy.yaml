@@ -21,6 +21,6 @@ spec:
           command: ['sh', '-c', 'until nc -z database-svc 5432; do echo waiting for database; sleep 2; done;']
       containers:
       - name: backend-container
-        image: worawut2547/cloud-project:daily-hub-be
+        image: worawut2547/cloud-project:daily-hub-be-{{ image_tag}}
         ports:
         - containerPort: 3003

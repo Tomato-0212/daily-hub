@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
       - name: frontend-container
-        image: worawut2547/cloud-project:daily-hub-fe
+        image: worawut2547/cloud-project:daily-hub-fe-{{ image_tag}}
         ports:
         - containerPort: 80
