@@ -1,4 +1,4 @@
-let tasks = JSON.parse(localStorage.getItem("dh2_tasks") || "[]");
+let tasks = [];
 let curP = "med";
 let curF = "all";
 
@@ -11,8 +11,10 @@ let curF = "all";
         .toUpperCase();
 })();
 
-function save() {
-    localStorage.setItem("dh2_tasks", JSON.stringify(tasks));
+// โหลด tasks จาก backend เมื่อโปรแกรมเริ่มต้น
+async function loadTasks() {
+    tasks = await fetchAllTasks();
+    render();
 }
 
 function selP(p) {
@@ -22,7 +24,7 @@ function selP(p) {
     });
 }
 
-function addTask() {
+async function addTask() {
     const inp = document.getElementById("inp");
     const text = inp.value.trim();
     if (!text) return inp.focus();
@@ -31,26 +33,40 @@ function addTask() {
         String(now.getHours()).padStart(2, "0") +
         ":" +
         String(now.getMinutes()).padStart(2, "0");
-    tasks.unshift({ id: Date.now(), text, p: curP, done: false, time: t });
-    inp.value = "";
-    inp.focus();
-    save();
-    render();
-}
-
-function toggle(id) {
-    const t = tasks.find((x) => x.id === id);
-    if (t) {
-        t.done = !t.done;
-        save();
-        render();
+    
+    const newTask = {
+        text: text,
+        p: curP,
+        done: false,
+        time: t,
+        createdAt: new Date()
+    };
+    
+    const result = await createTaskApi(newTask);
+    if (result) {
+        inp.value = "";
+        inp.focus();
+        await loadTasks(); // โหลดข้อมูลใหม่จาก backend
     }
 }
 
-function del(id) {
-    tasks = tasks.filter((x) => x.id !== id);
-    save();
-    render();
+async function toggle(id) {
+    const t = tasks.find((x) => x.id === id);
+    if (t) {
+        t.done = !t.done;
+        const result = await updateTaskApi(id, { done: t.done });
+        if (result) {
+            render();
+        }
+    }
+}
+
+async function del(id) {
+    const result = await deleteTaskApi(id);
+    if (result) {
+        tasks = tasks.filter((x) => x.id !== id);
+        render();
+    }
 }
 
 function setF(f, el) {
@@ -113,4 +129,5 @@ function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-render();
+// โหลด tasks จาก backend เมื่อโปรแกรมเริ่มต้น
+loadTasks();

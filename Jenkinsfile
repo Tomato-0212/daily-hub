@@ -193,8 +193,8 @@ pipeline {
             steps {
                 echo 'Cleaning up local Docker images...'
 
-                sh "docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG || true"
-                sh "docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG || true"
+                sh "docker rmi $DOCKER_USERNAME/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG || true"
+                sh "docker rmi $DOCKER_USERNAME/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG || true"
 
                 sh "docker images | grep $FE_IMAGE-$IMAGE_TAG || echo \"No local image for $FE_IMAGE-$IMAGE_TAG\""
                 sh "docker images | grep $BE_IMAGE-$IMAGE_TAG || echo \"No local image for $BE_IMAGE-$IMAGE_TAG\""
