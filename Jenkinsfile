@@ -8,6 +8,7 @@ pipeline {
 
         FE_IMAGE = 'daily-hub-fe'
         BE_IMAGE = 'daily-hub-be'
+        
 
         FE_CONTAINER = 'daily-hub-fe-container'
         BE_CONTAINER = 'daily-hub-be-container'
@@ -72,17 +73,17 @@ pipeline {
                 dir("${env.TERRAFORM_PATH}") {
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
-                    sleep 10
+                    sleep 5
 
                     echo 'Running Terraform Plan...'
                     sh 'terraform plan -out=tfplan'
-                    sleep 10
+                    sleep 5
 
                     echo 'Running Terraform Apply...'
                     sh 'terraform apply -auto-approve tfplan'
                     // เผื่อเวลาให้ user_data ในการสร้าง User และตั้งค่า SSH ก่อน
                     // echo "Waiting 120 seconds for Cloud-init (user setup) to finish..."
-                    sleep 10
+                    sleep 5
                 }
             }
         }
@@ -93,10 +94,10 @@ pipeline {
                 dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
                     sh 'cat inventory/static.ini'
-                    sleep 10
+                    sleep 5
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/static.ini -a "uptime"'
-                    sleep 10
+                    sleep 5
 
                     sh 'ansible all -i inventory/static.ini -m ping'
                 }
@@ -110,10 +111,10 @@ pipeline {
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
                     sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
-                    sleep 30
+                    sleep 10
 
                     sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    sleep 30
+                    sleep 10
 
                     echo 'Check Kubernetes cluster status...'
                     //sh 'ansible all -i inventory/static.ini -a "kubectl cluster-info"'
@@ -144,7 +145,7 @@ pipeline {
                         dir("${env.FRONTEND_PATH}") {
                             sh 'pwd && ls -a'
                             sh 'docker build -t $FE_IMAGE:latest .'
-                            sleep 10
+                            sleep 5
                         }
 
                         // Test Docker Image
@@ -160,13 +161,59 @@ pipeline {
                         dir("${env.BACKEND_PATH}") {
                             sh 'pwd && ls -a'
                             sh 'docker build -t $BE_IMAGE:latest .'
-                            sleep 10
+                            sleep 5
                         }
 
                         // Test Docker Image
                         sh 'docker images | grep $BE_IMAGE'
                     }
                 }
+            }
+        }
+        
+        // ============= DOCKER PUSH STAGE =============
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-jenkins-token',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    echo 'Logging in to Docker Hub...'
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin'
+                    sleep 5
+
+                    // Change Tag
+                    echo 'Changing Docker Image Tags...'
+                    // Frontend
+                    sh 'docker tag $FE_IMAGE $DOCKER_USER/DOCKER_REPO:$FE_IMAGE'
+                    // Backend
+                    sh 'docker tag $BE_IMAGE $DOCKER_USER/DOCKER_REPO:$BE_IMAGE'
+                    
+                    // Push to Docker Hub
+                    echo 'Pushing Frontend Image to Docker Hub...'
+                    sh 'docker push $DOCKER_USER/DOCKER_REPO:$FE_IMAGE'
+                    sleep 5
+
+                    echo 'Pushing Backend Image to Docker Hub...'
+                    sh 'docker push $DOCKER_USER/DOCKER_REPO:$BE_IMAGE'
+                    sleep 5
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                echo 'Cleaning up local Docker images...'
+                sh 'docker rmi $FE_IMAGE || true'
+                sh 'docker rmi $BE_IMAGE || true'
+
+                sh 'docker rmi $DOCKER_USER/DOCKER_REPO:$FE_IMAGE || true'
+                sh 'docker rmi $DOCKER_USER/DOCKER_REPO:$BE_IMAGE || true'
+
+                sh 'docker images | grep $FE_IMAGE || echo "No local image for $FE_IMAGE"'
+                sh 'docker images | grep $BE_IMAGE || echo "No local image for $BE_IMAGE"'
+
+                sh 'docker logout'
             }
         }
     }

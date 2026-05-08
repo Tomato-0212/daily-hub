@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: daily-hub-frontend-deployment
+  namespace: myapp
+  labels:
+    app: daily-hub-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: daily-hub-frontend
+  template:
+    metadata:
+      labels:
+        app: daily-hub-frontend
+    spec:
+      containers:
+      - name: daily-hub-frontend-container
+        image: worawut2547/cloud-project:daily-hub-fe
+        ports:
+        - containerPort: 80
