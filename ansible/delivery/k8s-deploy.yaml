@@ -11,14 +11,14 @@
     - name: Apply Namespace
       command: kubectl apply -f /home/{{ ansible_user }}/k8s/namespace.yaml
 
+    - name: Apply Database
+      command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/database/
+
     - name: Apply Backend
       command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/backend/
 
     - name: Apply Frontend
       command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/frontend/
-    
-    - name: Apply Database
-      command: kubectl apply -R -f /home/{{ ansible_user }}/k8s/database/
     
     - name: Wait for Deployments to be ready
       command: kubectl rollout status deployment/{{ item }} -n myapp
