@@ -9,7 +9,7 @@ pipeline {
         FE_IMAGE = 'daily-hub-fe'
         BE_IMAGE = 'daily-hub-be'
 
-        IMAGE_TAG = 'v${env.BUILD_NUMBER}'
+        IMAGE_TAG = "v${env.BUILD_NUMBER}"
         
 
         FE_CONTAINER = 'daily-hub-fe-container'
@@ -148,7 +148,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     echo 'Logging in to Docker Hub...'
-                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin'
+                    sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USER --password-stdin"
                     sleep 5
 
                     // Change Tag
@@ -178,11 +178,11 @@ pipeline {
                     sh 'pwd && ls -a'
                     echo 'Running Ansible Delivery...'
                     // Add your Ansible playbook commands here
-                    sh '''
-                        'ansible-playbook -i inventory/static.ini \
+                    sh """
+                        ansible-playbook -i inventory/static.ini \
                         delivery/k8s-deploy.yaml \
-                        -e "image_tag=$IMAGE_TAG"'
-                    '''
+                        -e "image_tag=$IMAGE_TAG"
+                    """
                 }
             }
         }
@@ -193,13 +193,13 @@ pipeline {
             steps {
                 echo 'Cleaning up local Docker images...'
 
-                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG || true'
-                sh 'docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG || true'
+                sh "docker rmi $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG || true"
+                sh "docker rmi $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG || true"
 
-                sh 'docker images | grep $FE_IMAGE-$IMAGE_TAG || echo "No local image for $FE_IMAGE-$IMAGE_TAG"'
-                sh 'docker images | grep $BE_IMAGE-$IMAGE_TAG || echo "No local image for $BE_IMAGE-$IMAGE_TAG"'
+                sh "docker images | grep $FE_IMAGE-$IMAGE_TAG || echo \"No local image for $FE_IMAGE-$IMAGE_TAG\""
+                sh "docker images | grep $BE_IMAGE-$IMAGE_TAG || echo \"No local image for $BE_IMAGE-$IMAGE_TAG\""
 
-                sh 'docker logout'
+                sh "docker logout"
             }
         }
     }
