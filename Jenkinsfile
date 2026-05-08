@@ -86,8 +86,6 @@ pipeline {
             steps {
                 dir("${env.ANSIBLE_PATH}") {
                     echo 'Running Ansible Health Check...'
-                    sh 'cat inventory/static.ini'
-                    sleep 5
                     // Add your Ansible health check commands here
                     sh 'ansible all -i inventory/static.ini -a "uptime"'
                     sleep 5
@@ -121,7 +119,7 @@ pipeline {
                         echo 'Building Frontend...'
                         // Add your build commands for the frontend here
                         dir("${env.FRONTEND_PATH}") {
-                            sh 'docker build -t $FE_IMAGE:$IMAGE_TAG .'
+                            sh "docker build -t $FE_IMAGE:$IMAGE_TAG ."
                             sleep 5
                         }
                     }
@@ -133,7 +131,7 @@ pipeline {
                         echo 'Building Backend...'
                         // Add your build commands for the backend here
                         dir("${env.BACKEND_PATH}") {
-                            sh 'docker build -t $BE_IMAGE:$IMAGE_TAG .'
+                            sh "docker build -t $BE_IMAGE:$IMAGE_TAG ."
                             sleep 5
                         }
                     }
@@ -156,17 +154,17 @@ pipeline {
                     // Change Tag
                     echo 'Changing Docker Image Tags...'
                     // Frontend
-                    sh 'docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG'
+                    sh "docker tag $FE_IMAGE $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG"
                     // Backend
-                    sh 'docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG'
+                    sh "docker tag $BE_IMAGE $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG"
 
                     // Push to Docker Hub
                     echo 'Pushing Frontend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG'
+                    sh "docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG"
                     sleep 5
 
                     echo 'Pushing Backend Image to Docker Hub...'
-                    sh 'docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG'
+                    sh "docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG"
                     sleep 5
                 }
             }
