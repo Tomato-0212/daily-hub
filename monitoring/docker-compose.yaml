@@ -1,0 +1,21 @@
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml # เช็คชื่อไฟล์ .yaml ให้ตรงกันด้วยนะครับ
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.enable-lifecycle'
+    networks:
+      - monitoring-network
+
+volumes:
+  prometheus-data:
+
+networks:
+  monitoring-network:
+    driver: bridge
