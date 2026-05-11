@@ -128,7 +128,7 @@ pipeline {
 
                         // Check K8s
                         def k8sExists = sh(
-                            script: 'kubectl cluster-info | grep "control plane',
+                            script: 'kubectl cluster-info | grep "control plane"',
                             returnStatus: true
                         ) == 0
 
