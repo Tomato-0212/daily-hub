@@ -119,33 +119,35 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.ANSIBLE_PATH}") {
-                    // Check Docker
-                    def dockerExists = sh(
-                        script: 'docker ps -a | grep -q "kind-"',
-                        returnStatus: true
-                    ) == 0
+                    script {
+                        // Check Docker
+                        def dockerExists = sh(
+                            script: 'docker ps -a | grep -q "kind-"',
+                            returnStatus: true
+                        ) == 0
 
-                    // Check K8s
-                    def k8sExists = sh(
-                        script: 'kubectl cluster-info &> /dev/null',
-                        returnStatus: true
-                    ) == 0
+                        // Check K8s
+                        def k8sExists = sh(
+                            script: 'kubectl cluster-info &> /dev/null',
+                            returnStatus: true
+                        ) == 0
 
-                    if (!dockerExists) {
-                        echo 'Docker not found. Running Ansible Setup for Docker...'
-                        sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
-                        sleep 10
-                    } else {
-                        echo '✓ Docker is already set up. Skipping Docker setup.'
+                        if (!dockerExists) {
+                            echo 'Docker not found. Running Ansible Setup for Docker...'
+                            sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
+                            sleep 10
+                        } else {
+                            echo '✓ Docker is already set up. Skipping Docker setup.'
+                        }
+
+                        if (!k8sExists) {
+                            echo 'Kubernetes cluster not found. Running Ansible Setup for Kubernetes...'
+                            sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
+                            sleep 10
+                        } else {
+                            echo '✓ Kubernetes cluster is already set up. Skipping Kubernetes setup.'
+                        }  
                     }
-
-                    if (!k8sExists) {
-                        echo 'Kubernetes cluster not found. Running Ansible Setup for Kubernetes...'
-                        sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                        sleep 10
-                    } else {
-                        echo '✓ Kubernetes cluster is already set up. Skipping Kubernetes setup.'
-                    }  
 
                     /*echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
