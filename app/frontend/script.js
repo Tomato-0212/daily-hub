@@ -129,5 +129,23 @@ function esc(s) {
     return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// ==================== Theme Toggle ====================
+function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    // Save preference
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode);
+}
+
+// Load theme preference on startup
+(() => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+        const themeSwitch = document.getElementById('theme-switch');
+        if (themeSwitch) themeSwitch.checked = true;
+    }
+})();
+
 // โหลด tasks จาก backend เมื่อโปรแกรมเริ่มต้น
 loadTasks();

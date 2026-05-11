@@ -84,6 +84,33 @@
 
         <!-- List -->
         <div class="list" id="list"></div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Daily Hub</h3>
+                    <p>Stay productive, one task at a time.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#" onclick="alert('About Daily Hub v1.0'); return false;">About</a></li>
+                        <li><a href="#" onclick="alert('Contact: support@dailyhub.local'); return false;">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Settings</h3>
+                    <div class="theme-toggle">
+                        <label for="theme-switch">Dark Mode:</label>
+                        <input type="checkbox" id="theme-switch" onchange="toggleTheme()" />
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Daily Hub. All rights reserved.</p>
+            </div>
+        </footer>
     </div>
 
     <!-- Import config and API helpers before main script -->
