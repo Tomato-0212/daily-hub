@@ -122,13 +122,13 @@ pipeline {
                     script {
                         // Check Docker
                         def dockerExists = sh(
-                            script: 'docker ps -a | grep -q "kind-"',
+                            script: 'docker ps -a | grep "kind"',
                             returnStatus: true
                         ) == 0
 
                         // Check K8s
                         def k8sExists = sh(
-                            script: 'kubectl cluster-info &> /dev/null',
+                            script: 'kubectl cluster-info',
                             returnStatus: true
                         ) == 0
 
