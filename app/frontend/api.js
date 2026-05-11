@@ -14,8 +14,20 @@ async function fetchAllTasks() {
         const response = await fetch(tasksUrl);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
+
+        // Map database columns to frontend format
+        const tasks = (result.data || result || []).map(t => ({
+            id: t.id,
+            text: t.title, // แปลง title เป็น text สำหรับ frontend
+            done: t.status, // แปลง status เป็น done สำหรับ frontend
+            p: t.priority, // แปลง priority เป็น p สำหรับ frontend
+            time: new Date(t.create_at).toLocaleTimeString('en-US',
+                { hour: '2-digit', minute: '2-digit', hour12: false }
+            ) // แปลง create_at เป็น time สำหรับ frontend
+        }));
+
         // ตรวจสอบว่า response มี data field หรือไม่
-        return result.data || result || [];
+        return tasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
