@@ -68,15 +68,12 @@ pipeline {
                 dir("${env.TERRAFORM_PATH}") {
                     echo 'Initializing Terraform...'
                     sh 'terraform init'
-                    sleep 5
 
                     echo 'Running Terraform Plan...'
                     sh 'terraform plan -out=tfplan'
-                    sleep 5
 
                     echo 'Running Terraform Apply...'
                     sh 'terraform apply -auto-approve tfplan'
-                    sleep 5
                 }
             }
         }
@@ -104,7 +101,7 @@ pipeline {
                     //sleep 10
 
                     sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    sleep 10
+                    //sleep 10
                 }
             }
         }
@@ -120,7 +117,6 @@ pipeline {
                         // Add your build commands for the frontend here
                         dir("${env.FRONTEND_PATH}") {
                             sh "docker build -t $FE_IMAGE:$IMAGE_TAG ."
-                            sleep 5
                         }
                     }
                 }
@@ -132,7 +128,6 @@ pipeline {
                         // Add your build commands for the backend here
                         dir("${env.BACKEND_PATH}") {
                             sh "docker build -t $BE_IMAGE:$IMAGE_TAG ."
-                            sleep 5
                         }
                     }
                 }
@@ -161,11 +156,9 @@ pipeline {
                     // Push to Docker Hub
                     echo 'Pushing Frontend Image to Docker Hub...'
                     sh "docker push $DOCKER_USER/$DOCKER_REPO:$FE_IMAGE-$IMAGE_TAG"
-                    sleep 5
 
                     echo 'Pushing Backend Image to Docker Hub...'
                     sh "docker push $DOCKER_USER/$DOCKER_REPO:$BE_IMAGE-$IMAGE_TAG"
-                    sleep 5
                 }
             }
         }
@@ -175,7 +168,6 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.ANSIBLE_PATH}") {
-                    sh 'pwd && ls -a'
                     echo 'Running Ansible Delivery...'
                     // Add your Ansible playbook commands here
                     sh """
