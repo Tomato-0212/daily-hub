@@ -10,6 +10,15 @@ const pool = require('./db');
 const app = express();
 const port = 3003;
 
+// ==================== Prometheus Metrics ====================
+app.use(expressPrometheus({
+    metricsPath: '/metrics',
+    collectDefaultMetrics: true,  // ← middleware จะทำให้
+    requestDurationBuckets: [0.1, 0.5, 1, 2],
+    requestLengthBuckets: [512, 1024, 5120, 10240],
+    responseLengthBuckets: [512, 1024, 5120, 10240],
+}));
+
 // ==================== Middleware ====================
 // Enable CORS for all routes
 app.use(morgan('dev'));
@@ -38,6 +47,12 @@ app.get('/', (req, res) => {
 // Tasks API routes
 app.use('/api/tasks', tasksRouter);
 
+// Metrics endpoint (handled by express-prometheus-middleware)
+app.get('/metrics', (req, res) => {
+    res.set('Content-Type', prometheus.register.contentType);
+    res.end(prometheus.register.metrics());
+});
+
 // Error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -55,4 +70,7 @@ app.listen(port, () => {
     console.log(`  POST   http://localhost:${port}/api/tasks`);
     console.log(`  PUT    http://localhost:${port}/api/tasks/:id`);
     console.log(`  DELETE http://localhost:${port}/api/tasks/:id`);
+    
+    console.log('=============== Metrics Endpoint ===============');
+    console.log(`  GET    http://localhost:${port}/metrics`);
 });
