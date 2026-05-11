@@ -1,27 +1,14 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-//const prometheus = require('prom-client');
-//const expressPrometheus = require('express-prometheus-middleware');
+const prometheus = require('prom-client');
+const expressPrometheus = require('express-prometheus-middleware');
 
 const tasksRouter = require('./routes/tasks');
 const pool = require('./db');
 
 const app = express();
-const port = 30003;
-const BASE_URL = `http://143.198.215.184:${port}`;
-
-// ==================== Prometheus Metrics ====================
-// setup Prometheus metrics
-//prometheus.collectDefaultMetrics();
-
-/*app.use(expressPrometheus({
-    metricsPath: '/metrics',
-    collectDefaultMetrics: true,
-    requestDurationBuckets: [0.1, 0.5, 1, 2], // Customize buckets as needed
-    requestLengthBuckets: [512, 1024, 5120, 10240],
-    responseLengthBuckets: [512, 1024, 5120, 10240],
-}));*/
+const port = 3003;
 
 // ==================== Middleware ====================
 // Enable CORS for all routes
@@ -51,12 +38,6 @@ app.get('/', (req, res) => {
 // Tasks API routes
 app.use('/api/tasks', tasksRouter);
 
-// Metrics endpoint (handled by express-prometheus-middleware)
-/*app.get('/metrics', (req, res) => {
-    res.set('Content-Type', prometheus.register.contentType);
-    res.end(prometheus.register.metrics());
-});*/
-
 // Error handler
 app.use((err, req, res, next) => {
     console.error(err.stack);
@@ -68,12 +49,10 @@ app.use((err, req, res, next) => {
 
 // ==================== Server ====================
 app.listen(port, () => {
-    console.log(`✓ Server is running on ${BASE_URL}`);
+    console.log(`✓ Server is running on http://localhost:${port}`);
     console.log(`✓ API Documentation:`);
-    console.log(`  GET    ${BASE_URL}/api/tasks`);
-    console.log(`  POST   ${BASE_URL}/api/tasks`);
-    console.log(`  PUT    ${BASE_URL}/api/tasks/:id`);
-    console.log(`  DELETE ${BASE_URL}/api/tasks/:id`);
-    console.log('======== Metrics Endpoint ========');
-    console.log(`  GET    ${BASE_URL}/metrics`);
+    console.log(`  GET    http://localhost:${port}/api/tasks`);
+    console.log(`  POST   http://localhost:${port}/api/tasks`);
+    console.log(`  PUT    http://localhost:${port}/api/tasks/:id`);
+    console.log(`  DELETE http://localhost:${port}/api/tasks/:id`);
 });
