@@ -67,16 +67,16 @@ pipeline {
             steps {
                 dir("${env.TERRAFORM_PATH}") {
                     echo 'Initializing Terraform...'
-                    sh 'terraform init'
-                    sleep 5
+                    //sh 'terraform init'
+                    //sleep 5
 
                     echo 'Running Terraform Plan...'
-                    sh 'terraform plan -out=tfplan'
-                    sleep 5
+                    //sh 'terraform plan -out=tfplan'
+                    //sleep 5
 
                     echo 'Running Terraform Apply...'
-                    sh 'terraform apply -auto-approve tfplan'
-                    sleep 5
+                    //sh 'terraform apply -auto-approve tfplan'
+                    //sleep 5
                 }
             }
         }
@@ -100,11 +100,11 @@ pipeline {
                     
                     echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
-                    sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
-                    sleep 10
+                    //sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
+                    //sleep 10
 
-                    sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    sleep 10
+                    //sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
+                    //sleep 10
                 }
             }
         }
