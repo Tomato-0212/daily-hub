@@ -3,7 +3,7 @@
 
 const API_CONFIG = {
     // URL ของ backend server
-    BASE_URL: 'http://backend-svc:3003',
+    BASE_URL: 'http://143.198.215.184:30003',
     
     // API endpoints
     ENDPOINTS: {
