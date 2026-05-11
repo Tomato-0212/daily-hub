@@ -123,13 +123,13 @@ pipeline {
                     script {
                         // Check Docker
                         def dockerExists = sh(
-                            script: 'docker ps -a | grep "kind"',
+                            script: 'docker version | grep "Version"',
                             returnStatus: true
                         ) == 0
 
                         // Check K8s
                         def k8sExists = sh(
-                            script: 'export KUBECONFIG=${VM_APP_HOME_USER}/.kube/config && kubectl cluster-info | grep "control plane"',
+                            script: 'kubectl version | grep "Version"',
                             returnStatus: true
                         ) == 0
 
