@@ -66,14 +66,39 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.TERRAFORM_PATH}") {
-                    echo 'Initializing Terraform...'
+                    sh '''
+                        echo 'Initializing Terraform...'
+                        terraform init
+
+                        echo 'Running Terraform Plan...'
+                        terraform plan -out=tfplan
+
+                        # Save status for later use
+                        if terraform show tfplan | grep -q "No changes"; then
+                            echo "NO_CHANGES=true" > /tmp/tf_status
+                        else
+                            echo "NO_CHANGES=false" > /tmp/tf_status
+                        fi
+                    '''
+
+                    script {
+                        def status = readFile('/tmp/tf_status').trim().split('=')[1]
+                        if (status == 'true') {
+                            echo '✓ Skipping apply - no changes'
+                        } else {
+                            echo 'Running Terraform Apply...'
+                            sh 'terraform apply -auto-approve tfplan'
+                        }
+                    }
+
+                    /*echo 'Initializing Terraform...'
                     sh 'terraform init'
 
                     echo 'Running Terraform Plan...'
                     sh 'terraform plan -out=tfplan'
 
                     echo 'Running Terraform Apply...'
-                    sh 'terraform apply -auto-approve tfplan'
+                    sh 'terraform apply -auto-approve tfplan'*/
                 }
             }
         }
@@ -94,14 +119,41 @@ pipeline {
             agent { label 'infra-ops' }
             steps {
                 dir("${env.ANSIBLE_PATH}") {
-                    
-                    echo 'Running Ansible Setup...'
+                    // Check Docker
+                    def dockerExists = sh(
+                        script: 'docker ps -a | grep -q "kind-"',
+                        returnStatus: true
+                    ) == 0
+
+                    // Check K8s
+                    def k8sExists = sh(
+                        script: 'kubectl cluster-info &> /dev/null',
+                        returnStatus: true
+                    ) == 0
+
+                    if (!dockerExists) {
+                        echo 'Docker not found. Running Ansible Setup for Docker...'
+                        sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
+                        sleep 10
+                    } else {
+                        echo '✓ Docker is already set up. Skipping Docker setup.'
+                    }
+
+                    if (!k8sExists) {
+                        echo 'Kubernetes cluster not found. Running Ansible Setup for Kubernetes...'
+                        sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
+                        sleep 10
+                    } else {
+                        echo '✓ Kubernetes cluster is already set up. Skipping Kubernetes setup.'
+                    }  
+
+                    /*echo 'Running Ansible Setup...'
                     // Add your Ansible playbook commands here\
                     sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
                     //sleep 10
 
                     sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    //sleep 10
+                    //sleep 10*/
                 }
             }
         }
