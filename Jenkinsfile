@@ -40,7 +40,8 @@ pipeline {
         // Ansible Path
         ANSIBLE_PATH = 'ansible'
 
-        // IP Server
+        // Path in VM
+        VM_APP_HOME_USER = "/home/${env.TF_VAR_admin_username}"
     }
 
     stages {
@@ -128,7 +129,7 @@ pipeline {
 
                         // Check K8s
                         def k8sExists = sh(
-                            script: 'kubectl cluster-info | grep "control plane"',
+                            script: 'export KUBECONFIG=${VM_APP_HOME_USER}/.kube/config && kubectl cluster-info | grep "control plane"',
                             returnStatus: true
                         ) == 0
 
