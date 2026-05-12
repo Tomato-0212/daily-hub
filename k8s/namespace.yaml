@@ -4,3 +4,10 @@ metadata:
   name: myapp
   labels:
     name: myapp
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring

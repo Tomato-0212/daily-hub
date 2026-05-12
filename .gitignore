@@ -53,3 +53,5 @@ terraform/terraform.rc
 
 terraform.tfstate
 terraform/tplan
+
+.claude/

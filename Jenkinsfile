@@ -91,15 +91,6 @@ pipeline {
                             sh 'terraform apply -auto-approve tfplan'
                         }
                     }
-
-                    /*echo 'Initializing Terraform...'
-                    sh 'terraform init'
-
-                    echo 'Running Terraform Plan...'
-                    sh 'terraform plan -out=tfplan'
-
-                    echo 'Running Terraform Apply...'
-                    sh 'terraform apply -auto-approve tfplan'*/
                 }
             }
         }
@@ -149,14 +140,6 @@ pipeline {
                             echo '✓ Kubernetes cluster is already set up. Skipping Kubernetes setup.'
                         }  
                     }
-
-                    /*echo 'Running Ansible Setup...'
-                    // Add your Ansible playbook commands here\
-                    sh 'ansible-playbook -i inventory/static.ini setup/docker.yaml'
-                    //sleep 10
-
-                    sh 'ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml'
-                    //sleep 10*/
                 }
             }
         }
@@ -255,5 +238,3 @@ pipeline {
     }
 
 }
-
-

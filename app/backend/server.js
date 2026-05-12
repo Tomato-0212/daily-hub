@@ -9,6 +9,7 @@ const pool = require('./db');
 
 const app = express();
 const port = 3003;
+const nodePort = 30003;
 
 // ==================== Prometheus Metrics ====================
 app.use(expressPrometheus({
@@ -64,13 +65,13 @@ app.use((err, req, res, next) => {
 
 // ==================== Server ====================
 app.listen(port, () => {
-    console.log(`✓ Server is running on http://localhost:${port}`);
+    console.log(`✓ Server is running on http://localhost:${nodePort}`);
     console.log(`✓ API Documentation:`);
-    console.log(`  GET    http://localhost:${port}/api/tasks`);
-    console.log(`  POST   http://localhost:${port}/api/tasks`);
-    console.log(`  PUT    http://localhost:${port}/api/tasks/:id`);
-    console.log(`  DELETE http://localhost:${port}/api/tasks/:id`);
-    
+    console.log(`  GET    http://localhost:${nodePort}/api/tasks`);
+    console.log(`  POST   http://localhost:${nodePort}/api/tasks`);
+    console.log(`  PUT    http://localhost:${nodePort}/api/tasks/:id`);
+    console.log(`  DELETE http://localhost:${nodePort}/api/tasks/:id`);
+
     console.log('=============== Metrics Endpoint ===============');
-    console.log(`  GET    http://localhost:${port}/metrics`);
+    console.log(`  GET    http://localhost:${nodePort}/metrics`);
 });

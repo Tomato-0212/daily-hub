@@ -1,7 +1,7 @@
-# 🚀 daily-standup-hub — ENG23 3074
 
-> _อธิบายโปรเจคสั้น ๆ ในประโยคเดียว_  
-> ระบบบันทึก Daily Standup สร้างด้วย Node.js/Express backend, JavaScript frontend, PostgreSQL database, containerize ด้วย Docker และ deploy บน Kubernetes ผ่าน Jenkins pipeline แบบอัตโนมัติ
+# 🚀 Daily Hub — ENG23 3074
+
+> ระบบจัดการงาน (Task Management) สร้างด้วย HTML/CSS/JavaScript (Frontend) และ Node.js/Express (Backend) เชื่อมต่อ PostgreSQL containerize ด้วย Docker และ deploy บน Kubernetes (KIND) ผ่าน Jenkins pipeline แบบอัตโนมัติบน DigitalOcean
 
 ---
 
@@ -9,82 +9,75 @@
 
 | รหัสนักศึกษา | ชื่อ-นามสกุล | ความรับผิดชอบ |
 |-------------|-------------|---------------|
-| 6616052  | ชื่อ วรวุฒิ ทัศน์ทอง | Git, App Development |
-| 6612726 | ชื่อ วชิระ แก้วเมือง | Jenkins, Docker |
-| 6639105 | ชื่อ นพวิศิษฏ์ ผลงาม | Terraform, Ansible |
-| 6613747 | ชื่อ ธานัท วรกันทรากร | Kubernetes, Monitoring |
+| B6613747 | ชื่อ ธานัท วรกันทรากร | Git, App Development |
+| B6612726 | ชื่อ วชิระ เเก้วเมือง | Terraform, Ansible |
+| B6616052 | ชื่อ วรวุฒิ ทัศน์ทอง | Jenkins, Docker |
+| B6639105 | ชื่อ นพวิศิษฏ์ ผลงาม | Kubernetes, Monitoring |
 
 ---
 
 ## 📌 ภาพรวมโปรเจค
 
 ### แอปพลิเคชัน
-- **ชื่อ:** daily-standup-hub
+- **ชื่อ:** Daily Hub
 - **ประเภท:** Web App
-- **ภาษา / Framework:** HTML, CSS, JavaScript, Node.js/Express (Backend), PostgreSQL (Database)
-- **คำอธิบาย:** แอปพลิเคชันสำหรับบันทึกและติดตาม Daily Standup ช่วยให้สมาชิกแต่ละคนสามารถอัปเดตความคืบหน้า งานที่ทำอยู่ และ blockers ได้อย่างรวดเร็ว โปร่งใส และเข้าถึงได้จากทุกที่
+- **ภาษา / Framework:** HTML, CSS, JavaScript (Frontend) · Node.js/Express (Backend) · PostgreSQL (Database)
+- **คำอธิบาย:** แอปพลิเคชันสำหรับสร้างและจัดการรายการงาน (Task) รองรับการเพิ่ม แก้ไข ลบ และกำหนด priority (low / med / high) พร้อม expose metrics ให้ Prometheus เก็บข้อมูลแบบ real-time
 
 ### Architecture Diagram
+
 ```
-Architecture Diagram
 Developer
     │
     ▼  git push
- GitHub ──── webhook ────▶ Jenkins CI/CD
-                                │
-                                ▼
-                      Trigger Parallel Build
-                      ┌─────────────────────┐
-                      ▼                     ▼
-               agent 1                agent 2
-            Build Frontend          Build Backend
-                      │                     │
-                      └──────────┬──────────┘
-                                 ▼
-                          Build Completed
-                      ┌─────────────────────┐
-                      ▼                     ▼
-               agent 3                agent 4
-          Deploy Frontend          Deploy Backend
-          kubectl apply            kubectl apply
-                      │                     │
-                      └──────────┬──────────┘
-                                 ▼
-                    ┌────────────────────────┐
-                    │        VM App          │
-                    │   Kubernetes Cluster   │
-                    │  ┌──────────────────┐  │
-                    │  │  Control Plane   │  │
-                    │  └──────────────────┘  │
-                    │  ┌──────┬──────┬─────┐ │
-                    │  │ W-1  │ W-2  │ W-3 │ │
-                    │  └──────┴──────┴─────┘ │
-                    │                        │
-                    │  Pod 1: Frontend       │
-                    │  Pod 2: Backend        │
-                    │  Pod 3: Database       │
-                    │                        │
-                    │  Service (NodePort     │
-                    │          :30000)       │
-                    └────────────────────────┘
-                                 │
-                    http://<vm_ip>:30000
-                                 │
-                   ┌─────────────┴──────────────┐
-                   ▼                             ▼
-               Prometheus  ──────────────▶  Grafana
-             (scrape /metrics)            (dashboard)
-
-CI/CD + Infrastructure Flow
-┌─────────────────────────────────────────────────────────┐
-│  มี VM อยู่รึไม่ ? (terraform state)                         │
-│      ├── ไม่มี ──▶ Create VM                             |
-│      └── มี    ──▶ ข้ามขั้นตอน                             │
-│                                                         │
-│  Docker Installed ? (ansible check)                     │
-│      ├── ไม่มี ──▶ Install Docker + Kubernetes           │
-│      └── มี    ──▶ ข้ามขั้นตอน                             │
-└─────────────────────────────────────────────────────────┘
+ GitHub ──────────────────────▶ Jenkins
+                                    │
+         ┌──────────────────────────┼──────────────────────────┐
+         ▼                          ▼                          ▼
+    [wsl-node]                 [infra-ops]               [build-fe/be]
+    Checkout                   Terraform                 Docker Build
+    Push Hub                   Ansible                   (Parallel)
+    Cleanup
+                                    │ Provision
+                                    ▼
+                         DigitalOcean Droplet
+                         (143.198.215.184)
+                                    │
+                         ┌──────────┴──────────┐
+                         ▼                     ▼
+                     Terraform             Ansible
+                   (DO Droplet)    ┌───────────┴──────────┐
+                                   ▼          ▼           ▼
+                              Health      Setup       Delivery
+                              Check    (Docker+K8s)  (kubectl apply)
+                                    │
+                                    ▼
+                    ┌───────────────────────────────┐
+                    │    KIND Kubernetes Cluster     │
+                    │                               │
+                    │  namespace: myapp             │
+                    │  ┌──────────┐ ┌──────────┐   │
+                    │  │Frontend  │ │ Backend  │   │
+                    │  │ :30080   │ │ :30003   │   │
+                    │  └──────────┘ └──────────┘   │
+                    │         │           │         │
+                    │         └─────┬─────┘         │
+                    │               ▼               │
+                    │  ┌────────────────────────┐   │
+                    │  │  PostgreSQL (ClusterIP) │   │
+                    │  └────────────────────────┘   │
+                    │                               │
+                    │  namespace: monitoring        │
+                    │  ┌────────────────────────┐   │
+                    │  │   Node Exporter :30100  │   │
+                    │  └────────────────────────┘   │
+                    └───────────────────────────────┘
+                                    │
+                    ┌───────────────┴───────────────┐
+                    ▼                               ▼
+                Prometheus                       Grafana
+              (docker-compose)               (docker-compose)
+              scrape: 9090, 30100, 30003      dashboard: 3000
 ```
 
 ---
@@ -95,85 +88,86 @@ CI/CD + Infrastructure Flow
 daily-hub/
 ├── app/
 │   ├── frontend/
-│   │   ├── index.html             # HTML หลัก
-│   │   ├── script.js              # JavaScript frontend logic
-│   │   ├── style.css              # CSS styling
-│   │   └── Dockerfile             # คำสั่งสร้าง Docker image frontend
+│   │   ├── index.html              # หน้าเว็บหลัก
+│   │   ├── script.js               # ตรรกะ UI และเรียก Backend API
+│   │   ├── style.css               # CSS styling
+│   │   └── Dockerfile              # สร้าง image สำหรับ nginx serve
 │   │
-│   ├── backend/
-│   │   ├── server.js              # โค้ดหลักของ Express server
-│   │   ├── db.js                  # ตั้งค่า PostgreSQL connection
-│   │   ├── package.json           # Node.js dependencies
-│   │   ├── Dockerfile             # คำสั่งสร้าง Docker image backend
-│   │   ├── controllers/
-│   │   │   └── taskController.js  # Business logic สำหรับ task endpoints
-│   │   ├── repository/
-│   │   │   └── taskRepo.js        # Database query functions
-│   │   └── routes/
-│   │       └── tasks.js           # Task API routes definitions
-│   │
-│   └── docker-compose.yaml        # Local development with Docker Compose
+│   └── backend/
+│       ├── server.js               # Express server + Prometheus middleware + routes
+│       ├── db.js                   # PostgreSQL connection pool
+│       ├── package.json            # Node.js dependencies
+│       ├── Dockerfile              # สร้าง image สำหรับ Node.js
+│       ├── controllers/
+│       │   └── taskController.js   # business logic ของ task endpoints
+│       ├── repository/
+│       │   └── taskRepo.js         # database query functions
+│       └── routes/
+│           └── tasks.js            # task API route definitions
 │
 ├── database/
-│   ├── docker-compose.yaml        # PostgreSQL Docker setup
-│   └── init.sql                   # Database initialization script
+│   ├── init.sql                    # สร้างตาราง tasks + seed data
+│   └── docker-compose.yaml         # รัน PostgreSQL สำหรับ local dev
 │
-├── Jenkinsfile                    # กำหนด CI/CD pipeline ทุก stage
+├── k8s/
+│   ├── namespace.yaml              # namespace: myapp, monitoring
+│   ├── frontend/
+│   │   ├── deploy.yaml             # Frontend deployment (1 replica)
+│   │   └── service.yaml            # NodePort :30080
+│   ├── backend/
+│   │   ├── deploy.yaml             # Backend deployment (1 replica, init container รอ DB)
+│   │   └── service.yaml            # NodePort :30003
+│   ├── database/
+│   │   ├── deploy.yaml             # PostgreSQL deployment
+│   │   ├── service.yaml            # ClusterIP (internal only)
+│   │   ├── pvc.yaml                # Persistent Volume Claim
+│   │   ├── secret.yaml             # DB credentials
+│   │   └── configmap.yaml          # DB configuration
+│   └── monitoring/
+│       └── node_exporter.yaml      # Node Exporter DaemonSet + NodePort :30100
 │
 ├── terraform/
-│   ├── main.tf                    # กำหนด resource ที่จะ provision
-│   ├── variables.tf               # ตัวแปร input
-│   ├── outputs.tf                 # ค่า output หลัง apply
-│   ├── provider.tf                # ตั้งค่า terraform provider
-│   └── backend.tf                 # Backend configuration
+│   ├── main.tf                     # สร้าง DigitalOcean Droplet + assign project
+│   ├── variables.tf                # ตัวแปร input
+│   ├── outputs.tf                  # output: droplet IP, ID, status
+│   ├── provider.tf                 # DigitalOcean provider config
+│   └── backend.tf                  # remote state backend
 │
 ├── ansible/
 │   ├── inventory/
-│   │   └── static.ini             # รายชื่อ host เป้าหมาย
+│   │   └── static.ini              # IP ของ VM เป้าหมาย
 │   ├── setup/
-│   │   ├── docker.yaml            # Install Docker playbook
-│   │   ├── k8s-kind.yaml          # Install Kubernetes playbook
-│   │   └── kind-config.yaml       # Kind cluster configuration
-│   ├── cleanup/
-│   │   └── k8s-kind.yaml          # Cleanup script
-│   └── ansible.cfg                # Ansible configuration
+│   │   ├── docker.yaml             # ติดตั้ง Docker
+│   │   ├── k8s-kind.yaml           # ติดตั้ง KIND + สร้าง cluster
+│   │   └── kind-config.yaml        # KIND cluster configuration
+│   ├── delivery/
+│   │   └── k8s-deploy.yaml         # copy manifests + inject image tag + kubectl apply
+│   └── cleanup/
+│       └── k8s-kind.yaml           # ลบ KIND cluster
 │
-├── k8s/
-│   ├── namespace.yaml             # Kubernetes namespace
-│   ├── frontend/
-│   │   ├── deploy.yaml            # Frontend deployment manifest
-│   │   └── service.yaml           # Frontend service manifest
-│   ├── backend/
-│   │   ├── deploy.yaml            # Backend deployment manifest
-│   │   └── service.yaml           # Backend service manifest
-│   └── database/
-│       ├── deploy.yaml            # Database deployment manifest
-│       └── service.yaml           # Database service manifest
+├── monitoring/
+│   ├── prometheus.yaml             # scrape config (self, node-exporter, backend)
+│   └── docker-compose.yaml         # รัน Prometheus + Grafana ด้วย Docker Compose
 │
-└── README.md
+└── Jenkinsfile                     # CI/CD pipeline ทุก stage
 ```
 
 ---
 
 ## ⚙️ สิ่งที่ต้องติดตั้งก่อน (Prerequisites)
 
-ตรวจสอบให้แน่ใจว่าติดตั้งทุก tool ครบก่อนรันโปรเจค
-
 | Tool | Version | หน้าที่ |
 |------|---------|---------|
 | Git | ≥ 2.x | จัดการ source code |
-| Node.js | ≥ 18.x | JavaScript runtime |
-| npm | ≥ 9.x | Package manager สำหรับ Node.js |
+| Node.js | ≥ 18.x | รัน backend บนเครื่อง |
 | Docker | ≥ 24.x | สร้างและรัน container |
-| Docker Compose | ≥ 2.x | สำหรับ local development |
+| Docker Compose | ≥ 2.x | รัน local database / monitoring |
 | Jenkins | ≥ 2.4xx | ระบบ CI/CD automation |
 | Terraform | ≥ 1.x | Provision infrastructure |
-| Ansible | ≥ 2.15 | Configure environment |
+| Ansible | ≥ 2.15 | Configure environment บน VM |
 | kubectl | ≥ 1.28 | สั่งงาน Kubernetes cluster |
-| Kind/Minikube | latest | Kubernetes แบบ local |
-| PostgreSQL | ≥ 14 | Database server |
-| Prometheus | ≥ 2.x | เก็บ metrics |
-| Grafana | ≥ 10.x | แสดง dashboard |
+
+> Jenkins ต้องตั้งค่า agent ที่มี label: `wsl-node`, `infra-ops`, `build-fe`, `build-be`
 
 ---
 
@@ -181,52 +175,43 @@ daily-hub/
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Tomato-0212/daily-hub.git
+git clone https://github.com/Worawut2547/daily-hub.git
 cd daily-hub
 ```
 
-### 2. รันแอปบนเครื่องโดยตรง (ไม่ผ่าน pipeline)
-
-#### Frontend
-```bash
-cd app/frontend
-# สามารถเปิดแอปด้วยการเปิด index.html ใน browser หรืออาจใช้ local server
-# เช่น: python -m http.server 3000 (Python)
-# หรือ: npx http-server -p 3000 (Node.js)
-```
-
-#### Backend
-```bash
-cd app/backend
-npm install
-npm run dev
-# Backend รันที่ http://localhost:4000
-```
-
-#### Database (Docker Compose)
+### 2. รัน Database บนเครื่อง
 ```bash
 cd database
-docker-compose up -d
+docker compose up -d
 # PostgreSQL รันที่ localhost:5432
 ```
 
-### 3. Build และรันด้วย Docker
-
-#### Frontend
+### 3. รัน Backend
 ```bash
-docker build -t [dockerhub-username]/daily-standup-frontend:latest ./app/frontend
-docker run -p 3000:3000 [dockerhub-username]/daily-standup-frontend:latest
+cd app/backend
+npm install
+node server.js
+# API รันที่ http://localhost:3003
 ```
 
-#### Backend
+### 4. เปิด Frontend
 ```bash
-docker build -t [dockerhub-username]/daily-standup-backend:latest ./app/backend
-docker run -p 4000:4000 [dockerhub-username]/daily-standup-backend:latest
+# เปิด app/frontend/index.html ใน browser โดยตรง
+# หรือใช้ local server:
+cd app/frontend
+npx http-server -p 8080
+# เปิดที่ http://localhost:8080
 ```
 
-#### หรือใช้ Docker Compose สำหรับ local development
+### 5. Build และรันด้วย Docker (ทดสอบก่อน push)
 ```bash
-docker-compose -f app/docker-compose.yaml up -d
+# Backend
+docker build -t daily-hub-be:test ./app/backend
+docker run -p 3003:3003 daily-hub-be:test
+
+# Frontend
+docker build -t daily-hub-fe:test ./app/frontend
+docker run -p 8080:80 daily-hub-fe:test
 ```
 
 ---
@@ -236,174 +221,254 @@ docker-compose -f app/docker-compose.yaml up -d
 ### ลำดับการทำงานของ Pipeline
 
 ```
-Checkout ──▶ Terraform ──▶ Ansible ──▶ Parallel Build ──▶ Push to Hub ──▶ Parallel Deploy
+Checkout ──▶ Terraform ──▶ Health Check ──▶ Ansible Setup ──▶ Build (parallel) ──▶ Push ──▶ Deploy ──▶ Cleanup
 ```
 
-| Stage | คำอธิบาย |
-|-------|----------|
-| **Checkout** | ดึงโค้ดล่าสุดจาก GitHub |
-| **Terraform** | ช็ค VM state — สร้าง VM ถ้ายังไม่มี |
-| **Ansible** | เช็ค Docker — ติดตั้ง Docker + K8s ถ้ายังไม่มี |
-| **Build Frontend** | Build Docker image ของ Frontend (parallel) |
-| **Build Backend** | Build Docker image ของ Backend (parallel) |
-| **Push to Hub** | อัปโหลด images ขึ้น Docker Hub |
-| **Deploy Frontend** | kubectl apply Frontend Kubernetes manifests |
-| **Deploy Backend** | kubectl apply Backend Kubernetes manifests |
+| Stage | Agent | คำอธิบาย |
+|-------|-------|----------|
+| **Checkout** | `wsl-node` | git clone จาก GitHub ด้วย github-token credentials |
+| **Infra: Terraform** | `infra-ops` | terraform init → plan → apply (ข้ามถ้า no changes) |
+| **Infra: Ansible Health Check** | `infra-ops` | ansible -a "uptime" ตรวจสอบว่า VM ตอบสนอง |
+| **Infra: Ansible Setup** | `infra-ops` | ตรวจและติดตั้ง Docker + KIND ถ้ายังไม่มี |
+| **Build Frontend** *(parallel)* | `build-fe` | docker build → `daily-hub-fe:v{N}` |
+| **Build Backend** *(parallel)* | `build-be` | docker build → `daily-hub-be:v{N}` |
+| **Push to Docker Hub** | `wsl-node` | retag → push `worawut2547/cloud-project:daily-hub-{fe/be}-v{N}` |
+| **Infra: Ansible Delivery** | `infra-ops` | copy k8s/ → inject image tag → kubectl apply |
+| **Cleanup** | `wsl-node` | docker rmi ลบ local images + docker logout |
 
-### วิธีตั้งค่า Jenkins
-1. ติดตั้ง Jenkins และเปิดที่ `http://localhost:8080`
-2. ติดตั้ง plugin: **Git**, **Pipeline**, **Docker Pipeline**
-3. เพิ่ม credentials สำหรับ Docker Hub (ชื่อ `dockerhub-credentials`)
-4. สร้าง Pipeline job ใหม่ และชี้ไปที่ repository นี้
-5. ตั้งค่า Webhook ใน GitHub:
-   - ไปที่ **Settings → Webhooks → Add webhook**
-   - Payload URL: `http://[jenkins-host]:8080/github-webhook/`
-   - Content type: `application/json`
-   - ติ๊ก trigger: **Just the push event**
+### Conditional Flow (Smart-Skip Logic)
+
+```
+[1] Checkout
+     │
+     ▼
+[2] Terraform Init → Plan
+     │
+     ├── no changes ──────────────────────────────────▶ SKIP Apply
+     │                                                      │
+     └── has changes ──▶ terraform apply                    │
+                               │                            │
+                               └──────────────┬─────────────┘
+                                              ▼
+                                   [3] Ansible Health Check
+                                       ansible -a "uptime"
+                                              │
+                                              ▼
+                                   [4] Ansible Setup
+                                              │
+                              ┌───────────────┼───────────────┐
+                              ▼               ▼               ▼
+                        Check Docker    Check K8s        (ถ้าครบแล้ว)
+                              │               │               │
+                         ✗ ──▶ Install   ✗ ──▶ Install   ✓ ──▶ SKIP
+                         ✓ ──▶ SKIP      ✓ ──▶ SKIP
+                              │               │               │
+                               └──────────────┴───────────────┘
+                                              │
+                                              ▼
+                               [5] Build Parallel
+                          ┌───────────────────────────────┐
+                          ▼                               ▼
+                   Build Frontend                  Build Backend
+                   (build-fe agent)               (build-be agent)
+                          │                               │
+                          └───────────────┬───────────────┘
+                                          ▼
+                                 [6] Push to Docker Hub
+                                          │
+                                          ▼
+                                [7] Ansible Delivery
+                                  copy k8s manifests
+                                  inject image_tag
+                                  kubectl apply
+                                          │
+                                          ▼
+                                     [8] Cleanup
+                                  docker rmi + logout
+```
+
+### Jenkins Credentials ที่ต้องตั้งค่า
+
+| Credential ID | ประเภท | ใช้สำหรับ |
+|---------------|--------|----------|
+| `github-token` | Username/Password | git clone จาก GitHub |
+| `docker-token` | Username/Password | docker login → push image |
+| `do-api-token` | Secret text | Terraform สร้าง Droplet |
+| `do-project-id` | Secret text | Terraform assign project |
+| `do-admin-username` | Secret text | Ansible SSH user |
+| `do-ssh-key-id` | Secret text | SSH key ID ใน DigitalOcean |
+| `do-pvt-key-path` | Secret text | path ของ SSH private key บน Jenkins agent |
 
 ---
 
 ## 🏗️ Infrastructure as Code
 
-### Terraform — Provision Infrastructure
+### Terraform — Provision DigitalOcean Droplet
+
 ```bash
 cd terraform
-terraform init      # ดาวน์โหลด provider plugins
+terraform init      # ดาวน์โหลด DigitalOcean provider plugin
 terraform plan      # ตรวจสอบว่าจะสร้างอะไรบ้าง
-terraform apply     # สร้าง resource จริง
+terraform apply     # สร้าง Droplet จริง
 ```
-> **สิ่งที่ Terraform สร้าง:** VM instance, Virtual Network, Security Groups และ resources อื่น ๆ ตามที่กำหนดใน `main.tf`
 
-### Ansible — Configure Environment
-```bash
-cd ansible
-ansible-playbook -i inventory/static.ini setup/docker.yaml
-ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml
-```
-> **สิ่งที่ Ansible ทำ:** ติดตั้ง Docker, Kubernetes (Kind), และ configure environment บน VM ที่ Terraform สร้างไว้
+**สิ่งที่ Terraform สร้าง:**
+- DigitalOcean Droplet 1 เครื่อง พร้อม cloud-init script สร้าง admin user + ตั้งค่า SSH
+- Assign Droplet ไปยัง DigitalOcean Project ที่กำหนด
 
-> ⚠️ **หมายเหตุ:** ใน pipeline จริง Jenkins จะเรียก Terraform และ Ansible อัตโนมัติในขั้นตอน Deploy ไม่ต้องรันด้วยมือ
+> ⚠️ `lifecycle { ignore_changes = [...] }` ป้องกัน Terraform destroy/recreate VM ถ้า config เล็กน้อยเปลี่ยน
+
+### Ansible — Configure Environment + Deploy
+
+| Playbook | คำสั่ง | ทำอะไร |
+|----------|--------|--------|
+| `setup/docker.yaml` | `ansible-playbook -i inventory/static.ini setup/docker.yaml` | ติดตั้ง Docker บน VM |
+| `setup/k8s-kind.yaml` | `ansible-playbook -i inventory/static.ini setup/k8s-kind.yaml` | ติดตั้ง KIND + สร้าง cluster |
+| `delivery/k8s-deploy.yaml` | รันผ่าน Jenkins อัตโนมัติ | copy manifests + inject image tag + kubectl apply |
+
+> ⚠️ ใน pipeline จริง Jenkins เรียก Terraform และ Ansible อัตโนมัติ ไม่ต้องรันด้วยมือ
 
 ---
 
 ## ☸️ Kubernetes Deployment
 
 ### Apply Manifests ด้วยตัวเอง
+
 ```bash
 # สร้าง namespace
 kubectl apply -f k8s/namespace.yaml
 
-# Deploy database
-kubectl apply -f k8s/database/deploy.yaml
-kubectl apply -f k8s/database/service.yaml
+# Deploy Database (ก่อน backend เสมอ)
+kubectl apply -R -f k8s/database/
 
-# Deploy backend
-kubectl apply -f k8s/backend/deploy.yaml
-kubectl apply -f k8s/backend/service.yaml
+# Deploy Backend
+kubectl apply -R -f k8s/backend/
 
-# Deploy frontend
-kubectl apply -f k8s/frontend/deploy.yaml
-kubectl apply -f k8s/frontend/service.yaml
+# Deploy Frontend
+kubectl apply -R -f k8s/frontend/
+
+# Deploy Node Exporter
+kubectl apply -f k8s/monitoring/node_exporter.yaml
 ```
 
 ### ตรวจสอบสถานะ
+
 ```bash
-kubectl get pods -n standup-hub
-kubectl get svc  -n standup-hub
-kubectl get deployments -n standup-hub
+kubectl get pods -n myapp
+kubectl get svc  -n myapp
+kubectl get pods -n monitoring
 ```
 
 ### ผลลัพธ์ที่ควรจะได้
-```
-NAME                                      READY   STATUS    RESTARTS   AGE
-daily-standup-frontend-xxxxxxxxx-xxxxx    1/1     Running   0          2m
-daily-standup-backend-xxxxxxxxx-yyyyy     1/1     Running   0          2m
-daily-standup-database-xxxxxxxxx-zzzzz    1/1     Running   0          2m
 
-NAME                    TYPE       CLUSTER-IP     PORT(S)          AGE
-daily-standup-hub-svc   NodePort   10.96.xx.xxx   3000:30000/TCP   2m
+```
+NAME                                   READY   STATUS    RESTARTS   AGE
+backend-deployment-xxxxxxxxx-xxxxx     1/1     Running   0          2m
+frontend-deployment-xxxxxxxxx-yyyyy    1/1     Running   0          2m
+database-deployment-xxxxxxxxx-zzzzz    1/1     Running   0          2m
+
+NAME           TYPE       CLUSTER-IP      PORT(S)          AGE
+frontend-svc   NodePort   10.96.x.x       80:30080/TCP     2m
+backend-svc    NodePort   10.96.x.x       3003:30003/TCP   2m
+database-svc   ClusterIP  10.96.x.x       5432/TCP         2m
 ```
 
 ### เข้าถึงแอปพลิเคชัน
-```
-http://localhost:30000
-```
+
+| ส่วน | URL |
+|------|-----|
+| Frontend | `http://<vm_ip>:30080` |
+| Backend API | `http://<vm_ip>:30003` |
+| Backend Metrics | `http://<vm_ip>:30003/metrics` |
+| Node Exporter | `http://<vm_ip>:30100/metrics` |
 
 ---
 
 ## 📊 Monitoring
 
-### Prometheus — เก็บ Metrics
-- ไฟล์ config: `monitoring/prometheus.yml`
-- Scrape ทุก **15 วินาที**
-- Target endpoint: `http://[app-host]:[port]/metrics`
+### รัน Prometheus + Grafana
 
-รัน Prometheus:
 ```bash
-prometheus --config.file=monitoring/prometheus.yml
-# เปิด UI ที่ http://localhost:9090
+cd monitoring
+docker compose up -d
 ```
 
-### Grafana — แสดง Dashboard
-- ไฟล์ dashboard: `monitoring/grafana-dashboard.json`
-- Data source: Prometheus (`http://localhost:9090`)
+| Service | URL |
+|---------|-----|
+| Prometheus | `http://localhost:9090` |
+| Grafana | `http://localhost:3000` |
 
-วิธี import dashboard:
-1. เปิด Grafana ที่ `http://localhost:3000`
-2. ไปที่ **Dashboards → Import**
-3. อัปโหลดไฟล์ `grafana-dashboard.json`
+### Prometheus Scrape Targets
 
-### Panels ใน Dashboard
+| Job | Target | เก็บข้อมูลอะไร |
+|-----|--------|---------------|
+| `prometheus` | `localhost:9090` | Prometheus self-metrics |
+| `vm-node-exporter` | `<vm_ip>:30100` | CPU, RAM, Disk, Network ของ VM |
+| `backend-api` | `<vm_ip>:30003/metrics` | HTTP request rate, latency, error rate |
 
-| Panel | Metric (PromQL) | แสดงข้อมูลอะไร |
-|-------|-----------------|----------------|
+Scrape interval: **15 วินาที**
+
+### Panels ใน Grafana Dashboard
+
+| Panel | PromQL | แสดงข้อมูลอะไร |
+|-------|--------|----------------|
 | Request Rate | `rate(http_requests_total[1m])` | จำนวน request ต่อวินาที |
-| Error Rate | `rate(http_requests_total{status=~"5.."}[1m])` | จำนวน error 5xx ต่อวินาที |
-| Latency (p95) | `histogram_quantile(0.95, ...)` | response time ที่ percentile 95 |
-| Pod Health | `up{job="[app-name]"}` | service ขึ้นหรือล่ม (1/0) |
-
----
-
-## 🌿 Branching Strategy
-
-```
-main        ──── โค้ดที่พร้อม production, protected branch
-dev         ──── รวมโค้ดก่อน merge ขึ้น main
-feature/*   ──── พัฒนา feature แต่ละอัน (เช่น feature/add-login)
-```
-
-| Branch | Protected | คำอธิบาย |
-|--------|-----------|----------|
-| `main` | ✅ | trigger pipeline อัตโนมัติเมื่อ merge |
-| `dev` | ✅ | ทดสอบก่อน merge ขึ้น main |
-| `feature/*` | ❌ | พัฒนาแยกกันแล้วค่อย merge เข้า dev |
+| Error Rate | `rate(http_requests_total{status=~"5.."}[1m])` | จำนวน HTTP 5xx ต่อวินาที |
+| Latency (p95) | `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))` | response time ที่ percentile 95 |
+| CPU Usage | `100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)` | CPU usage ของ VM (%) |
+| Memory Usage | `(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100` | RAM usage ของ VM (%) |
 
 ---
 
 ## 🧪 API Endpoints
 
-| Method | Endpoint | คำอธิบาย |
-|--------|----------|----------|
-| `GET` | `/` | Health check — ตรวจว่าแอปยังรันอยู่ |
+Base URL: `http://<vm_ip>:30003`
+
+| Method | Path | คำอธิบาย |
+|--------|------|----------|
+| `GET` | `/` | Health check — ตรวจว่า API ยังทำงานอยู่ |
 | `GET` | `/metrics` | Prometheus metrics endpoint |
-| `GET` | `/tasks` | ดึง standup ทั้งหมด |
-| `POST` | `/tasks` | บันทึก standup ใหม่ |
-| `PUT` | `/tasks/:id` | แก้ไข standup ตาม id |
-| `DELETE` | `/tasks/:id` | ลบ standup ตาม id |
+| `GET` | `/api/tasks` | ดึงรายการงานทั้งหมด |
+| `POST` | `/api/tasks` | สร้างงานใหม่ |
+| `PUT` | `/api/tasks/:id` | แก้ไขงานตาม id |
+| `DELETE` | `/api/tasks/:id` | ลบงานตาม id |
+
+**ตัวอย่าง Request Body (POST/PUT):**
+```json
+{
+  "title": "ส่งรายงาน",
+  "priority": "high"
+}
+```
 
 ---
 
-## 🐛 ปัญหาที่พบบ่อย (Troubleshooting)
+## 🌿 Branching Strategy
 
-**Pods ค้างอยู่ที่ `Pending` ไม่ยอม Running**
+| Branch | Protected | คำอธิบาย |
+|--------|-----------|----------|
+| `main` | ✅ | branch หลัก — trigger pipeline อัตโนมัติเมื่อ push |
+
+---
+
+## 🐛 Troubleshooting
+
+**Backend Pod ค้างที่ `Init:0/1` ไม่ยอม Running**
 ```bash
-kubectl describe pod [pod-name] -n [namespace]
-# ดูที่ Events: อาจเกิดจาก resource ไม่พอ หรือ image pull error
+kubectl describe pod <pod-name> -n myapp
+# initContainer wait-for-db รอ database-svc:5432 — ตรวจว่า database pod Running ก่อน
+kubectl get pods -n myapp
+```
+
+**Pods ค้างที่ `Pending`**
+```bash
+kubectl describe pod <pod-name> -n myapp
+# ดูที่ Events: อาจเกิดจาก image pull error หรือ resource ไม่พอ
 ```
 
 **Jenkins pipeline ล้มเหลวตอน Docker Build**
 ```bash
-# ตรวจว่า Docker daemon รันอยู่
+# ตรวจว่า Docker daemon รันอยู่บน agent
 sudo systemctl start docker
 # เพิ่ม jenkins user เข้า docker group
 sudo usermod -aG docker jenkins
@@ -411,16 +476,16 @@ sudo usermod -aG docker jenkins
 
 **Prometheus แสดง target เป็น DOWN**
 ```bash
-# ตรวจว่าแอปเปิด /metrics ได้จริง
-curl http://localhost:4000/metrics
-# ตรวจสอบ prometheus.yml ว่า host:port ตรงกับแอปจริง
+# ตรวจว่า backend /metrics ตอบสนอง
+curl http://<vm_ip>:30003/metrics
+# ตรวจว่า node-exporter pod รันอยู่
+kubectl get pods -n monitoring
 ```
 
-**Backend error เมื่อ Connect Database**
+**Terraform apply ล้มเหลว (credentials error)**
 ```bash
-# ตรวจว่า PostgreSQL รันอยู่
-docker-compose ps
-# ตรวจค่า environment variables ใน deployment.yaml และ server.js
+# ตรวจว่า Jenkins credentials ครบทุก ID ที่ Jenkinsfile ใช้
+# ดู Jenkinsfile บรรทัด environment { TF_VAR_* = credentials('...') }
 ```
 
 ---
@@ -428,13 +493,11 @@ docker-compose ps
 ## 📚 เอกสารอ้างอิง
 
 - [Jenkinsfile Declarative Pipeline Syntax](https://www.jenkins.io/doc/book/pipeline/syntax/)
-- [Terraform Documentation](https://developer.hashicorp.com/terraform/docs)
+- [Terraform DigitalOcean Provider](https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs)
 - [Ansible Documentation](https://docs.ansible.com/)
+- [KIND — Kubernetes IN Docker](https://kind.sigs.k8s.io/)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [Prometheus Documentation](https://prometheus.io/docs/)
 - [Grafana Documentation](https://grafana.com/docs/)
 - [Express.js Documentation](https://expressjs.com/)
-- [Node.js Documentation](https://nodejs.org/docs/)
-- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [Markdown Guide](https://www.markdownguide.org/)
-- [GitHub Markdown Syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+- [express-prometheus-middleware](https://github.com/jochen-schweizer/express-prometheus-middleware)
